@@ -44,6 +44,9 @@ Partial Class MainForm
 		Me.tmr = New System.Windows.Forms.Timer(Me.components)
 		Me.Panel1 = New System.Windows.Forms.Panel()
 		Me.img = New System.Windows.Forms.PictureBox()
+		Me.ToolStripSeparator5 = New System.Windows.Forms.ToolStripSeparator()
+		Me.ToolStripButton8 = New System.Windows.Forms.ToolStripButton()
+		Me.ToolStripButton9 = New System.Windows.Forms.ToolStripButton()
 		Me.ToolStrip1.SuspendLayout()
 		Me.Panel1.SuspendLayout()
 		CType(Me.img, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -52,7 +55,7 @@ Partial Class MainForm
 		'ToolStrip1
 		'
 		Me.ToolStrip1.ImageScalingSize = New System.Drawing.Size(20, 20)
-		Me.ToolStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripButton1, Me.txtFileName, Me.ToolStripSeparator1, Me.ToolStripButton2, Me.ToolStripSeparator2, Me.ToolStripButton3, Me.ToolStripButton6, Me.ToolStripSeparator3, Me.ToolStripButton5, Me.ToolStripButton4, Me.ToolStripSeparator4, Me.lbl, Me.prog, Me.ToolStripSeparator7, Me.txtFrm, Me.ToolStripButton7})
+		Me.ToolStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripButton1, Me.txtFileName, Me.ToolStripSeparator1, Me.ToolStripButton2, Me.ToolStripSeparator2, Me.ToolStripButton3, Me.ToolStripButton6, Me.ToolStripSeparator3, Me.ToolStripButton5, Me.ToolStripButton4, Me.ToolStripSeparator4, Me.lbl, Me.prog, Me.ToolStripSeparator7, Me.txtFrm, Me.ToolStripButton7, Me.ToolStripSeparator5, Me.ToolStripButton8, Me.ToolStripButton9})
 		Me.ToolStrip1.Location = New System.Drawing.Point(0, 0)
 		Me.ToolStrip1.Name = "ToolStrip1"
 		Me.ToolStrip1.Size = New System.Drawing.Size(1332, 27)
@@ -195,6 +198,29 @@ Partial Class MainForm
 		Me.img.TabIndex = 2
 		Me.img.TabStop = False
 		'
+		'ToolStripSeparator5
+		'
+		Me.ToolStripSeparator5.Name = "ToolStripSeparator5"
+		Me.ToolStripSeparator5.Size = New System.Drawing.Size(6, 27)
+		'
+		'ToolStripButton8
+		'
+		Me.ToolStripButton8.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
+		Me.ToolStripButton8.Image = CType(resources.GetObject("ToolStripButton8.Image"), System.Drawing.Image)
+		Me.ToolStripButton8.ImageTransparentColor = System.Drawing.Color.Magenta
+		Me.ToolStripButton8.Name = "ToolStripButton8"
+		Me.ToolStripButton8.Size = New System.Drawing.Size(103, 24)
+		Me.ToolStripButton8.Text = "Start Tracking"
+		'
+		'ToolStripButton9
+		'
+		Me.ToolStripButton9.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
+		Me.ToolStripButton9.Image = CType(resources.GetObject("ToolStripButton9.Image"), System.Drawing.Image)
+		Me.ToolStripButton9.ImageTransparentColor = System.Drawing.Color.Magenta
+		Me.ToolStripButton9.Name = "ToolStripButton9"
+		Me.ToolStripButton9.Size = New System.Drawing.Size(103, 24)
+		Me.ToolStripButton9.Text = "Stop Tracking"
+		'
 		'MainForm
 		'
 		Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
@@ -235,4 +261,7 @@ Partial Class MainForm
 	Friend WithEvents ToolStripButton7 As ToolStripButton
 	Friend WithEvents Panel1 As Panel
 	Friend WithEvents img As PictureBox
+	Friend WithEvents ToolStripSeparator5 As ToolStripSeparator
+	Friend WithEvents ToolStripButton8 As ToolStripButton
+	Friend WithEvents ToolStripButton9 As ToolStripButton
 End Class

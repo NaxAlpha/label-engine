@@ -11,7 +11,7 @@ Friend Class CVX
 	End Function
 
 	<DllImport(DLLPath, CallingConvention:=CallingConvention.StdCall)>
-	Public Shared Function GetFrameProps(frame As IntPtr) As MatProps
+	Public Shared Function GetFrameProps(frame As IntPtr) As MatData
 	End Function
 
 	<DllImport(DLLPath, CallingConvention:=CallingConvention.StdCall)>
@@ -47,7 +47,7 @@ Friend Class CVX
 	End Sub
 
 	<DllImport(DLLPath, CallingConvention:=CallingConvention.StdCall)>
-	Public Shared Function CreateTracker(engine As IntPtr, currentFrame As IntPtr, region As Rectangle) As IntPtr
+	Public Shared Function CreateTracker(engine As IntPtr, currentFrame As IntPtr, region As CvRect) As IntPtr
 	End Function
 
 	<DllImport(DLLPath, CallingConvention:=CallingConvention.StdCall)>
@@ -63,11 +63,12 @@ Friend Class CVX
 	End Sub
 
 	<DllImport(DLLPath, CallingConvention:=CallingConvention.StdCall)>
-	Public Shared Sub DestroyTracker(engine As IntPtr, currentFrame As IntPtr, x As Integer, y As Integer)
-	End Sub
+	Public Shared Function DestroyTracker(engine As IntPtr, currentFrame As IntPtr, x As Integer, y As Integer) As IntPtr
+	End Function
 
 End Class
-Friend Structure MatProps
+<StructLayout(LayoutKind.Sequential)>
+Friend Structure MatData
 	Public IsContinuous As Integer
 	Public Data As IntPtr
 	Public DataEnd As IntPtr
@@ -76,4 +77,17 @@ Friend Structure MatProps
 	Public [Step] As Integer
 	Public IsSubmat As Integer
 	Public Width As Integer
+End Structure
+<StructLayout(LayoutKind.Sequential)>
+Friend Structure CvRect
+	Public X As Integer
+	Public Y As Integer
+	Public W As Integer
+	Public H As Integer
+	Public Shared Widening Operator CType(this As CvRect) As Rectangle
+		Return New Rectangle(this.X, this.Y, this.W, this.H)
+	End Operator
+	Public Shared Narrowing Operator CType(this As Rectangle) As CvRect
+		Return New CvRect With {.X = this.X, .Y = this.Y, .W = this.Width, .H = this.Height}
+	End Operator
 End Structure

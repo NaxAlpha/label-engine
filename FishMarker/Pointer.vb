@@ -1,4 +1,12 @@
-﻿Imports System.Runtime.InteropServices
+﻿'File:			Pointer.vb
+'Author:		Nauman Mustafa
+'License:		MIT
+'Modified:		14-July-2017
+'Description:	Basic implementation of C++ pointers in VB.NET, is used for unsafe C# code conversion via Telerik Code Converter (Unofficial)
+'				If you convert c# unsafe code via Telerik code converter, pointers in C# get reference to Pointer(Of T) structure
+'				It can't be exactly as C# one because there is no function to get pointer of .net variable.
+
+Imports System.Runtime.InteropServices
 
 Public Structure Pointer(Of T As Structure)
 
@@ -33,7 +41,7 @@ Public Structure Pointer(Of T As Structure)
 	End Function
 
 	Public Shared Narrowing Operator CType(this As Pointer(Of T)) As T
-		Return this(0)
+		Return this.Target
 	End Operator
 
 	Public Shared Operator +(this As Pointer(Of T), that As Integer) As Pointer(Of T)
