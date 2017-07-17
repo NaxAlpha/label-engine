@@ -5,66 +5,39 @@ Imports OpenCvSharp.Extensions
 
 Public Class CvEngine
 
-	Private videoCapture As IntPtr = 0
-	Private multiTracker As IntPtr = 0
-	Private currentFrame As IntPtr = 0
-	Private frameNumber As Integer = 0
-	Private framesCount As Integer = 0
-
-	Private frame As Mat
+	Private cap As VideoCapture
+	Private frame As New Mat
+	Private trc As New CvTracker
 
 	Public ReadOnly Property IsOpened As Boolean
 		Get
-			Return (videoCapture <> 0)
-		End Get
-	End Property
-
-	Public ReadOnly Property IsTracking As Boolean
-		Get
-			Return (multiTracker <> 0)
+			If cap IsNot Nothing Then Return cap.IsOpened() Else Return False
 		End Get
 	End Property
 
 	Public ReadOnly Property FrameID As Integer
 		Get
-			Return frameNumber
+			If cap IsNot Nothing Then Return cap.PosFrames Else Return 0
 		End Get
 	End Property
 
 	Public ReadOnly Property FrameCount As Integer
 		Get
-			Return framesCount
+			If cap IsNot Nothing Then Return cap?.Get(CaptureProperty.FrameCount) Else Return False
 		End Get
 	End Property
 
 	Public Sub Close()
-		If IsOpened Then
-			CVX.CloseVideo(videoCapture)
-			CVX.DestroyFrame(currentFrame)
-
-			frameNumber = 0
-
-			videoCapture = 0
-			currentFrame = 0
-		End If
+		cap?.Release()
 	End Sub
 
 	Public Sub Open(fileName As String)
-		If IsOpened Then
-			Close()
-		End If
-		frameNumber = 0
-		currentFrame = CVX.CreateFrame()
-		frame = New Mat(currentFrame)
-		videoCapture = CVX.OpenVideo(fileName)
-		framesCount = CVX.VideoLength(videoCapture)
+		Close()
+		cap = VideoCapture.FromFile(fileName)
 	End Sub
 
 	Public Sub MoveNext()
-		If IsOpened Then
-			CVX.ReadFrame(videoCapture, currentFrame)
-			frameNumber += 1
-		End If
+		cap?.Read(frame)
 	End Sub
 
 	Public Function ToBitmap() As Bitmap
@@ -76,49 +49,35 @@ Public Class CvEngine
 	End Function
 
 	Public Sub StartTracking()
-		If Not IsOpened Then Return
-		If IsTracking Then Return
-		multiTracker = CVX.StartTracking()
-	End Sub
-
-	Public Sub Track()
-		If IsTracking Then
-			CVX.UpdateTracker(multiTracker, currentFrame)
-		End If
+		trc.Init(frame)
 	End Sub
 
 	Public Sub StopTracking()
-		If IsTracking Then
-			CVX.StopTracking(multiTracker)
-		End If
+		trc.ClearAll()
+	End Sub
+
+	Public Sub Track()
+		trc.Track(frame)
 	End Sub
 
 	Public Sub AddRegion(region As Rectangle)
-		If IsTracking Then
-			CVX.CreateTracker(multiTracker, currentFrame, region)
-		End If
+		trc.AddRegion(R2RR(region))
 	End Sub
 
 	Public Sub RemoveRegion(x As Integer, y As Integer)
-		If IsTracking Then
-			multiTracker = CVX.DestroyTracker(multiTracker, currentFrame, x, y)
-		End If
+		trc.RemoveRegion(New Point2f(x, y))
 	End Sub
 
 	Public Function ListRegions() As Rectangle()
-		Dim count As Integer
-		Dim ptr = CVX.GetObjectList(multiTracker, count)
-		Dim regions(count - 1) As Rectangle
-		Dim sz = Marshal.SizeOf(Of Rectangle)
-		For i = 0 To count - 1
-			regions(i) = Marshal.PtrToStructure(Of CvRect)(ptr + i * sz)
-		Next
-		CVX.DeleteObjectList(ptr)
-		Return regions
+		Return trc.ListRegions().Select(Function(r) R2R(r)).ToArray()
 	End Function
 
-	<DllImport("kernel32.dll", SetLastError:=True, EntryPoint:="CopyMemory")>
-	Private Shared Sub CopyMemory(destination As IntPtr, source As IntPtr, length As UInteger)
-	End Sub
+	Private Function R2R(r As Rect) As Rectangle
+		Return New Rectangle(r.X, r.Y, r.Width, r.Height)
+	End Function
+
+	Private Function R2RR(r As Rectangle) As Rect
+		Return New Rect(r.X, r.Y, r.Width, r.Height)
+	End Function
 
 End Class

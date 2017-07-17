@@ -88,7 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CvEngine.vb" />
-    <Compile Include="CVX.vb" />
+    <Compile Include="CvTracker.vb" />
     <Compile Include="Fish.vb" />
     <Compile Include="MainForm.vb">
       <SubType>Form</SubType>
@@ -112,7 +112,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Pointer.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="MainForm.resx">

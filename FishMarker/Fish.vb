@@ -27,7 +27,7 @@ Public Class FishCollection
 	End Property
 
 	Public Sub Move()
-		Dim z = Me.Current
+		Dim z = Current
 		id += 1
 	End Sub
 

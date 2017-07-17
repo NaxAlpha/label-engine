@@ -21,7 +21,7 @@ Public Class MainForm
 			prog.Value = engine.FrameID
 			lbl.Text = $"Progress: {prog.Value}/{prog.Maximum}"
 			fx.Move()
-			If engine.IsTracking Then
+			If btnTrack.Checked Then
 				fx.Current.Clear()
 				engine.Track()
 				For Each bb In engine.ListRegions()
@@ -114,7 +114,7 @@ Public Class MainForm
 
 		fx.Current.Add(f)
 
-		If engine.IsTracking Then
+		If btnTrack.Checked Then
 			engine.AddRegion(f.Bounding)
 		End If
 	End Sub
@@ -206,27 +206,33 @@ Public Class MainForm
 		'Dim m As New Mat(fx)
 		'CVX.ReadFrame(vid, fx)
 		'Stop
-		Dim eng As New CvEngine()
-		eng.Open("C:\Users\Nax\Documents\Visual Studio 2017\Projects\fish_count\fish_count\ds\00.mp4")
-		eng.MoveNext()
-		eng.StartTracking()
-		eng.AddRegion(New Rectangle(2, 2, 20, 20))
-		eng.MoveNext()
-		eng.Track()
-		Dim lst = eng.ListRegions()
-		Stop
+		'Dim eng As New CvEngine()
+		'eng.Open("C:\Users\Nax\Documents\Visual Studio 2017\Projects\fish_count\fish_count\ds\00.mp4")
+		'eng.MoveNext()
+		'eng.StartTracking()
+		'eng.AddRegion(New Rectangle(2, 2, 20, 20))
+		'eng.MoveNext()
+		'eng.Track()
+		'Dim lst = eng.ListRegions()
+
 		'Dim bmp = eng.ToBitmap()
 		'Stop
 	End Sub
 
-	Private Sub ToolStripButton8_Click(sender As Object, e As EventArgs) Handles ToolStripButton8.Click
-		engine.StartTracking()
-		For Each f In fx.Current
-			engine.AddRegion(f.Bounding)
-		Next
+	Private Sub btnTrack_Click(sender As Object, e As EventArgs) Handles btnTrack.Click
+		btnTrack.Checked = Not btnTrack.Checked
+		btnTrack.Text = "Tracking " + If(btnTrack.Checked, "Enabled", "Disabled")
+		If btnTrack.Checked Then
+			engine.StartTracking()
+			For Each f In fx.Current
+				engine.AddRegion(f.Bounding)
+			Next
+		Else
+			engine.StopTracking()
+		End If
 	End Sub
 
-	Private Sub ToolStripButton9_Click(sender As Object, e As EventArgs) Handles ToolStripButton9.Click
+	Private Sub ToolStripButton9_Click(sender As Object, e As EventArgs)
 		engine.StopTracking()
 	End Sub
 End Class
