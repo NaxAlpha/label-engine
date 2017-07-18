@@ -1,9 +1,11 @@
 ﻿Imports System.IO
 
 Public Class Fish
+
 	Public Property Start As Point
 	Public Property [End] As Point
 	Public Property Aspect As Single
+
 	Public ReadOnly Property Bounding As Rectangle
 		Get
 			Dim sx = Math.Min(Start.X, [End].X)
@@ -33,15 +35,40 @@ Public Class Fish
 			Return Width * Aspect
 		End Get
 	End Property
+
+	Public Sub New(start As Point, [end] As Point, aspect As Single)
+		Me.Start = start
+		Me.End = [end]
+		Me.Aspect = aspect
+	End Sub
+
+	Public Sub New(bounding As Rectangle, angle As Single, aspect As Single)
+		Me.Aspect = aspect
+		If angle >= 0 AndAlso angle < Math.PI / 2 Then                  'Q1
+			Start = bounding.Location
+			[End] = bounding.Location + bounding.Size
+		ElseIf angle >= Math.PI / 2 AndAlso angle <= Math.PI Then       'Q2
+			Start = New Point(bounding.Right, bounding.Top)
+			[End] = New Point(bounding.Left, bounding.Bottom)
+		ElseIf angle >= -Math.PI / 2 AndAlso angle < 0 Then                                               'Q4
+			Start = New Point(bounding.Left, bounding.Bottom)
+			[End] = New Point(bounding.Right, bounding.Top)
+		Else                                                            'Q3
+			Start = bounding.Location + bounding.Size
+			[End] = bounding.Location
+		End If
+	End Sub
+
 End Class
 Public Class FishCollection
 	Inherits List(Of List(Of Fish))
 
 	Private id As Integer = 0
+
 	Public ReadOnly Property Current As List(Of Fish)
 		Get
-			If Me.Count = id Then
-				Me.Add(New List(Of Fish))
+			If Count = id Then
+				Add(New List(Of Fish))
 			End If
 			Return Me(id)
 		End Get
@@ -86,15 +113,14 @@ Public Class FishCollection
 				End If
 				Dim nItems = 5
 				For i = 0 To nx - 1
-					Current.Add(New Fish With {
-								.Start = New Point(w(2 + i * nItems), w(3 + i * nItems)),
-								.End = New Point(w(4 + i * nItems), w(5 + i * nItems)),
-								.Aspect = Val(w(6 + i * nItems))})
+					Current.Add(New Fish(New Point(w(2 + i * nItems), w(3 + i * nItems)),
+										 New Point(w(4 + i * nItems), w(5 + i * nItems)),
+										 Val(w(6 + i * nItems))))
 				Next
 				Move()
 			End While
 		End Using
-		Me.id = 0
+		id = 0
 	End Sub
 
 	Public Sub Reset()

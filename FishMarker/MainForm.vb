@@ -24,7 +24,7 @@ Public Class MainForm
 				fx.Current.Clear()
 				engine.Track()
 				For Each bb In engine.ListRegions()
-					fx.Current.Add(New Fish With {.Start = bb.Location, .End = bb.Location + bb.Size, .Aspect = txtAspect.Text})
+					fx.Current.Add(bb)
 				Next
 			End If
 			fx.Save(fishFile)
@@ -47,7 +47,7 @@ Public Class MainForm
 			engine.StopTracking()
 			engine.StartTracking()
 			For Each f In fx.Current
-				engine.AddRegion(f.Bounding)
+				engine.AddRegion(f)
 			Next
 
 			img.Image = engine.ToBitmap()
@@ -80,14 +80,13 @@ Public Class MainForm
 	End Sub
 
 	Private Sub RenderFlow(g As Graphics)
-		For Each pt In engine.trc.olderPoints
-			g.FillEllipse(Brushes.GreenYellow, pt.X - 2, pt.Y - 2, 4, 4)
-		Next
-		For i = 0 To engine.trc.newerPoints.Count - 1
-			Dim pt = engine.trc.newerPoints(i)
-			Dim ptOld = engine.trc.olderPoints(i)
-			g.FillEllipse(Brushes.Gold, pt.X - 2, pt.Y - 2, 4, 4)
-			g.DrawLine(Pens.DarkSalmon, ptOld.X, ptOld.Y, pt.X, pt.Y)
+		Dim pts = engine.GetFlowPoints()
+		For i = 0 To pts.[new].Count - 1
+			Dim pt = pts.[new](i)
+			Dim ptOld = pts.old(i)
+			g.FillEllipse(Brushes.White, ptOld.X - 1, ptOld.Y - 1, 2, 2)
+			g.FillEllipse(Brushes.Black, pt.X - 1, pt.Y - 1, 2, 2)
+			g.DrawLine(Pens.Gray, ptOld.X, ptOld.Y, pt.X, pt.Y)
 		Next
 	End Sub
 
@@ -108,13 +107,13 @@ Public Class MainForm
 		g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
 
 		RenderFishes(g)
-		If btnTrack.Checked Then
+		If btnTrack.Checked AndAlso fx.Current.Count < 50 Then
 			RenderFlow(g)
 		End If
 
 		If creating Then
 			g.DrawLine(Pens.Red, start, ender)
-			g.DrawRectangle(Pens.Green, New Fish With {.Start = start, .End = ender}.Bounding)
+			g.DrawRectangle(Pens.Green, New Fish(start, ender, Val(txtAspect.Text)).Bounding)
 		End If
 	End Sub
 
@@ -131,12 +130,12 @@ Public Class MainForm
 		ender = e.Location
 		creating = False
 
-		Dim f = New Fish With {.Start = start, .End = ender, .Aspect = txtAspect.Text}
+		Dim f = New Fish(start, ender, Val(txtAspect.Text))
 
 		fx.Current.Add(f)
 
 		If btnTrack.Checked Then
-			engine.AddRegion(f.Bounding)
+			engine.AddRegion(f)
 		End If
 	End Sub
 
@@ -245,7 +244,7 @@ Public Class MainForm
 		If btnTrack.Checked Then
 			engine.StartTracking()
 			For Each f In fx.Current
-				engine.AddRegion(f.Bounding)
+				engine.AddRegion(f)
 			Next
 		Else
 			engine.StopTracking()

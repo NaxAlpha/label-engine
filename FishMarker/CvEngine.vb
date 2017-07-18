@@ -7,7 +7,7 @@ Public Class CvEngine
 
 	Private cap As VideoCapture
 	Private frame As New Mat
-	Friend trc As New CvTracker
+	Private trc As New CvTracker
 
 	Public ReadOnly Property IsOpened As Boolean
 		Get
@@ -26,6 +26,10 @@ Public Class CvEngine
 			If cap IsNot Nothing Then Return cap?.Get(CaptureProperty.FrameCount) Else Return False
 		End Get
 	End Property
+
+	Friend Function GetFlowPoints() As (old As List(Of Point2f), [new] As List(Of Point2f))
+		Return (trc.olderPoints, trc.newerPoints)
+	End Function
 
 	Public Sub Close()
 		cap?.Release()
@@ -60,16 +64,16 @@ Public Class CvEngine
 		trc.Track(frame)
 	End Sub
 
-	Public Sub AddRegion(region As Rectangle)
-		trc.AddRegion(R2RR(region))
+	Public Sub AddRegion(region As Fish)
+		trc.AddRegion(region)
 	End Sub
 
 	Public Sub RemoveRegion(x As Integer, y As Integer)
 		trc.RemoveRegion(New Point2f(x, y))
 	End Sub
 
-	Public Function ListRegions() As Rectangle()
-		Return trc.ListRegions().Select(Function(r) R2R(r)).ToArray()
+	Public Function ListRegions() As Fish()
+		Return trc.ListRegions().ToArray()
 	End Function
 
 	Private Function R2R(r As Rect) As Rectangle
