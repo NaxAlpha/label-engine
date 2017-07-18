@@ -2,8 +2,8 @@
 
 Public Class MainForm
 
-	Dim start As Drawing.Point
-	Dim ender As Drawing.Point
+	Dim start As Point
+	Dim ender As Point
 	Dim creating As Boolean
 
 	Private fx As New FishCollection
@@ -18,14 +18,13 @@ Public Class MainForm
 		If engine.IsOpened Then
 			engine.MoveNext()
 			img.Image = engine.ToBitmap()
-			prog.Value = engine.FrameID
-			lbl.Text = $"Progress: {prog.Value}/{prog.Maximum}"
+			lbl.Text = $"Progress: {engine.FrameID}/{engine.FrameCount}"
 			fx.Move()
 			If btnTrack.Checked Then
 				fx.Current.Clear()
 				engine.Track()
 				For Each bb In engine.ListRegions()
-					fx.Current.Add(New Fish With {.Start = bb.Location, .End = bb.Location + bb.Size})
+					fx.Current.Add(New Fish With {.Start = bb.Location, .End = bb.Location + bb.Size, .Aspect = txtAspect.Text})
 				Next
 			End If
 			fx.Save(fishFile)
@@ -45,30 +44,30 @@ Public Class MainForm
 				fx.Move()
 			End While
 			img.Image = engine.ToBitmap()
-			prog.Value = engine.FrameID
-			lbl.Text = $"Progress: {prog.Value}/{prog.Maximum}"
+			lbl.Text = $"Progress: {engine.FrameID}/{engine.FrameCount}"
 		End If
 	End Sub
 
 	Private Sub RenderFishes(g As Graphics)
 		For Each f In fx.Current
-			'g.TranslateTransform(f.Center.X, f.Center.Y)
+			g.TranslateTransform(f.Center.X, f.Center.Y)
 			'g.DrawEllipse(Pens.Green, New RectangleF(New PointF(-2, -2), New SizeF(4, 4)))
 
-			'g.RotateTransform(f.Angle * 180 / Math.PI)
-			'g.DrawEllipse(Pens.Blue, -f.Width / 2, -f.Height / 2, f.Width, f.Height)
-			'g.RotateTransform(-f.Angle * 180 / Math.PI)
+			g.RotateTransform(f.Angle * 180 / Math.PI)
+			g.DrawEllipse(Pens.Blue, -f.Width / 2, -f.Height / 2, f.Width, f.Height)
+			g.RotateTransform(-f.Angle * 180 / Math.PI)
 
 			'Dim del = img.PointToClient(MousePosition) - f.Center
 			'Dim dis = Math.Sqrt(del.X ^ 2 + del.Y ^ 2)
 			'Dim min = Math.Min(f.Width, f.Height)
 			'Dim max = Math.Max(f.Width, f.Height)
 
+			g.TranslateTransform(-f.Center.X, -f.Center.Y)
+
 			If f.Bounding.Contains(img.PointToClient(MousePosition)) Then
 				g.FillRectangle(New SolidBrush(Color.FromArgb(128, Color.Yellow)), f.Bounding)
 			End If
 
-			'g.TranslateTransform(-f.Center.X, -f.Center.Y)
 			g.DrawRectangle(Pens.Orange, f.Bounding)
 		Next
 	End Sub
@@ -110,7 +109,7 @@ Public Class MainForm
 		ender = e.Location
 		creating = False
 
-		Dim f = New Fish With {.Start = start, .End = ender}
+		Dim f = New Fish With {.Start = start, .End = ender, .Aspect = txtAspect.Text}
 
 		fx.Current.Add(f)
 
@@ -160,8 +159,7 @@ Public Class MainForm
 					fx.Load(fishFile)
 				End If
 				txtFileName.Text = Path.GetFileName(videoFile)
-				prog.Maximum = engine.FrameCount
-				lbl.Text = $"Progress: {0}/{prog.Maximum}"
+				lbl.Text = $"Progress: {0}/{engine.FrameCount}"
 				img.Image = Nothing
 			End If
 		End Using
@@ -235,4 +233,9 @@ Public Class MainForm
 	Private Sub ToolStripButton9_Click(sender As Object, e As EventArgs)
 		engine.StopTracking()
 	End Sub
+
+	Private Sub txtAspect_Click(sender As Object, e As EventArgs) Handles txtAspect.Click
+		txtAspect.Text = Val(txtAspect.Text)
+	End Sub
+
 End Class

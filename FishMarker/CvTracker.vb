@@ -127,7 +127,7 @@ Public Class CvTracker
 			Dim sq1 As Double = Math.Sqrt(n1 * n1 - s1 * s1 / patchLength), sq2 As Double = Math.Sqrt(n2 * n2 - s2 * s2 / patchLength)
 			Dim ares As Double = If((sq2 = 0), sq1 / Math.Abs(sq1), (prod - s1 * s2 / patchLength) / sq1 / sq2)
 
-			NCC.Add(CSng(ares))
+			NCC.Add(ares)
 		Next
 		Dim NCCmedian As Single = GetMedian(NCC)
 
@@ -191,7 +191,6 @@ Public Class CvTracker
 			pt(i) -= del
 			disp.Add(Math.Sqrt(pt(i).DotProduct(pt(i))))
 		Next
-
 		Return disp
 	End Function
 
