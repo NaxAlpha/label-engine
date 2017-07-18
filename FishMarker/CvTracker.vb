@@ -3,8 +3,10 @@
 Public Class CvTracker
 
 	'Config
-
 	Private nPointsToTrack As Integer = 100
+
+	Friend olderPoints As New List(Of Point2f)
+	Friend newerPoints As New List(Of Point2f)
 
 	'Fields
 	Private regions As New List(Of Rect)
@@ -195,6 +197,9 @@ Public Class CvTracker
 	End Function
 
 	Public Sub Track(nextFrame As Mat)
+		olderPoints.Clear()
+		newerPoints.Clear()
+
 		current.CopyTo(previous)
 		nextFrame.CopyTo(current)
 
@@ -225,6 +230,9 @@ Public Class CvTracker
 			End If
 
 			regions(i) = rNew
+
+			olderPoints.AddRange(oldPoints)
+			newerPoints.AddRange(newPoints)
 		Next
 	End Sub
 

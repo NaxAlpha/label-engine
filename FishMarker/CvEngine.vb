@@ -7,7 +7,7 @@ Public Class CvEngine
 
 	Private cap As VideoCapture
 	Private frame As New Mat
-	Private trc As New CvTracker
+	Friend trc As New CvTracker
 
 	Public ReadOnly Property IsOpened As Boolean
 		Get

@@ -43,6 +43,13 @@ Public Class MainForm
 				engine.MoveNext()
 				fx.Move()
 			End While
+
+			engine.StopTracking()
+			engine.StartTracking()
+			For Each f In fx.Current
+				engine.AddRegion(f.Bounding)
+			Next
+
 			img.Image = engine.ToBitmap()
 			lbl.Text = $"Progress: {engine.FrameID}/{engine.FrameCount}"
 		End If
@@ -72,6 +79,18 @@ Public Class MainForm
 		Next
 	End Sub
 
+	Private Sub RenderFlow(g As Graphics)
+		For Each pt In engine.trc.olderPoints
+			g.FillEllipse(Brushes.GreenYellow, pt.X - 2, pt.Y - 2, 4, 4)
+		Next
+		For i = 0 To engine.trc.newerPoints.Count - 1
+			Dim pt = engine.trc.newerPoints(i)
+			Dim ptOld = engine.trc.olderPoints(i)
+			g.FillEllipse(Brushes.Gold, pt.X - 2, pt.Y - 2, 4, 4)
+			g.DrawLine(Pens.DarkSalmon, ptOld.X, ptOld.Y, pt.X, pt.Y)
+		Next
+	End Sub
+
 	Private Sub ReloadVideo() Handles ToolStripButton6.Click
 		If engine.IsOpened Then
 			engine.Close()
@@ -89,6 +108,9 @@ Public Class MainForm
 		g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
 
 		RenderFishes(g)
+		If btnTrack.Checked Then
+			RenderFlow(g)
+		End If
 
 		If creating Then
 			g.DrawLine(Pens.Red, start, ender)
