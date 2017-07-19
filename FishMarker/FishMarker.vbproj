@@ -94,6 +94,7 @@
     <Compile Include="CvEngine.vb" />
     <Compile Include="CvTracker.vb" />
     <Compile Include="Fish.vb" />
+    <Compile Include="LabelApp.vb" />
     <Compile Include="MainForm.vb">
       <SubType>Form</SubType>
     </Compile>
