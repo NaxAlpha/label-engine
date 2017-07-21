@@ -1,4 +1,7 @@
 ﻿Imports System.IO
+Imports System.Net
+Imports System.Web.Configuration
+Imports RestSharp
 
 Public Class MainForm
 
@@ -13,6 +16,31 @@ Public Class MainForm
 	Private engine As New CvEngine
 
 	Dim play As Boolean = False
+
+	Private Async Function DownloadFile(url As String) As Task(Of String)
+		Dim req As HttpWebRequest = WebRequest.Create(url)
+		req.Accept = "application/vnd.github.v3+json"
+		req.UserAgent = "Cool"
+		Using res = req.GetResponse(), r = New StreamReader(res.GetResponseStream())
+			Return Await r.ReadToEndAsync()
+		End Using
+	End Function
+
+	Private Async Sub CheckForUpdate()
+		Await Task.Delay(1)
+		Try
+			Dim txt = Await DownloadFile("https://api.github.com/repos/NaxAlpha/label-engine/releases/latest")
+			Dim obj As Newtonsoft.Json.Linq.JObject = Newtonsoft.Json.JsonConvert.DeserializeObject(txt)
+			Dim tag = obj("tag_name").ToString()
+			Dim newver = Val(tag.Split("."c, "-"c)(2))
+			Dim build = Val(Application.ProductVersion.Split("."c, "-"c)(2))
+			If build < newver Then
+				MessageBox.Show("Newer version is avaiable on Github: NaxAlpha/label-engine")
+			End If
+		Catch ex As Exception
+			MessageBox.Show("Failed to check for update!")
+		End Try
+	End Sub
 
 	Private Sub MoveSingleFrame()
 		If engine.IsOpened Then
@@ -228,22 +256,8 @@ Public Class MainForm
 	End Sub
 
 	Private Sub MainForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-		'Dim vid = CVX.OpenVideo("C:\Users\Nax\Documents\Visual Studio 2017\Projects\fish_count\fish_count\ds\00.mp4")
-		'Dim fx = CVX.CreateFrame()
-		'Dim m As New Mat(fx)
-		'CVX.ReadFrame(vid, fx)
-		'Stop
-		'Dim eng As New CvEngine()
-		'eng.Open("C:\Users\Nax\Documents\Visual Studio 2017\Projects\fish_count\fish_count\ds\00.mp4")
-		'eng.MoveNext()
-		'eng.StartTracking()
-		'eng.AddRegion(New Rectangle(2, 2, 20, 20))
-		'eng.MoveNext()
-		'eng.Track()
-		'Dim lst = eng.ListRegions()
-
-		'Dim bmp = eng.ToBitmap()
-		'Stop
+		Text = Text + " " + Application.ProductVersion
+		CheckForUpdate()
 	End Sub
 
 	Private Sub btnTrack_Click(sender As Object, e As EventArgs) Handles btnTrack.Click
