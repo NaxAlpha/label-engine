@@ -29,17 +29,13 @@ Public Class CvTracker
 		regions.Clear()
 	End Sub
 
-	Public Sub RemoveRegion(at As Point2f)
-		For Each p In regions
-			If p.Bounding.Contains(at.X, at.Y) Then
-				regions.Remove(p)
-				Return
-			End If
-		Next
+	Public Sub RemoveRegion(f As Fish)
+		regions.Remove(f)
 	End Sub
 
 	Private Function GetPoints(f As Fish) As List(Of Point2f)
 		Dim pts As New List(Of Point2f)
+
 		Dim nPoints1d As Integer = Math.Sqrt(nPointsToTrack)
 		Dim r = f.Bounding
 
@@ -54,7 +50,7 @@ Public Class CvTracker
 				Dim yPos As Single = r.Y + (ystep * i) + yoffset
 				Dim PosP As New Point2f(xPos, yPos)
 				Dim Pose = PosP.Shift(f.Center.ToPoint2f).Rotate(-f.Angle)
-				If (Pose.X / f.Width) ^ 2 + (Pose.Y / f.Height) ^ 2 < 0.1 Then
+				If (Pose.X / f.Width) ^ 2 + (Pose.Y / f.Height) ^ 2 < 0.3 Then
 					pts.Add(PosP)
 				End If
 			Next
@@ -215,6 +211,9 @@ Public Class CvTracker
 			Dim r = regions(i)
 
 			oldPoints = GetPoints(r).ToArray()
+			If oldPoints.Length = 0 Then
+				Continue For
+			End If
 			Dim stat As Byte() = New Byte(oldPoints.Length - 1) {}
 			Dim errs As Single() = New Single(oldPoints.Length - 1) {}
 			newPoints = New Point2f(oldPoints.Length - 1) {}

@@ -68,8 +68,8 @@ Public Class CvEngine
 		trc.AddRegion(region)
 	End Sub
 
-	Public Sub RemoveRegion(x As Integer, y As Integer)
-		trc.RemoveRegion(New Point2f(x, y))
+	Public Sub RemoveRegion(f As Fish)
+		trc.RemoveRegion(f)
 	End Sub
 
 	Public Function ListRegions() As Fish()

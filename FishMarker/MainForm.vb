@@ -55,27 +55,35 @@ Public Class MainForm
 		End If
 	End Sub
 
+	Private Function GetOuterBounds(f As Fish) As Rectangle
+		Dim r As New OpenCvSharp.RotatedRect(f.Center.ToPoint2f(), New OpenCvSharp.Size2f(f.Width, f.Height), f.Angle * 180 / Math.PI)
+		Return r.BoundingRect().ToRectangle()
+	End Function
+
 	Private Sub RenderFishes(g As Graphics)
 		For Each f In fx.Current
 			g.TranslateTransform(f.Center.X, f.Center.Y)
-			'g.DrawEllipse(Pens.Green, New RectangleF(New PointF(-2, -2), New SizeF(4, 4)))
 
 			g.RotateTransform(f.Angle * 180 / Math.PI)
 			g.DrawEllipse(Pens.Blue, -f.Width / 2, -f.Height / 2, f.Width, f.Height)
 			g.RotateTransform(-f.Angle * 180 / Math.PI)
 
-			'Dim del = img.PointToClient(MousePosition) - f.Center
-			'Dim dis = Math.Sqrt(del.X ^ 2 + del.Y ^ 2)
-			'Dim min = Math.Min(f.Width, f.Height)
-			'Dim max = Math.Max(f.Width, f.Height)
+			Dim del = img.PointToClient(MousePosition) - f.Center
+			Dim dis = Math.Sqrt(del.X ^ 2 + del.Y ^ 2)
+			Dim min = Math.Min(f.Width, f.Height)
+			Dim max = Math.Max(f.Width, f.Height)
+
+			g.DrawEllipse(Pens.Yellow, -min / 2, -min / 2, min, min)
+
+			If dis < min / 2 Then
+				g.FillEllipse(New SolidBrush(Color.FromArgb(128, Color.Gold)), -min / 2, -min / 2, min, min)
+			End If
 
 			g.TranslateTransform(-f.Center.X, -f.Center.Y)
 
-			If f.Bounding.Contains(img.PointToClient(MousePosition)) Then
-				g.FillRectangle(New SolidBrush(Color.FromArgb(128, Color.Yellow)), f.Bounding)
-			End If
-
-			g.DrawRectangle(Pens.Orange, f.Bounding)
+			g.DrawRectangle(Pens.HotPink, GetOuterBounds(f))
+			g.FillEllipse(Brushes.PaleGreen, f.Start.X - 3, f.Start.Y - 3, 6, 6)
+			g.DrawLine(Pens.Orange, f.Start, f.End)
 		Next
 	End Sub
 
@@ -107,13 +115,13 @@ Public Class MainForm
 		g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
 
 		RenderFishes(g)
-		If btnTrack.Checked AndAlso fx.Current.Count < 50 Then
+		If btnTrack.Checked AndAlso fx.Current.Count < 3 Then
 			RenderFlow(g)
 		End If
 
 		If creating Then
 			g.DrawLine(Pens.Red, start, ender)
-			g.DrawRectangle(Pens.Green, New Fish(start, ender, Val(txtAspect.Text)).Bounding)
+			'g.DrawRectangle(Pens.Green, New Fish(start, ender, Val(txtAspect.Text)).Bounding)
 		End If
 	End Sub
 
@@ -149,15 +157,15 @@ Public Class MainForm
 		If e.Button = MouseButtons.Right Then
 
 			Dim mp = img.PointToClient(MousePosition)
-			engine.RemoveRegion(mp.X, mp.Y)
 
 			For Each f In fx.Current
-				'Dim del = img.PointToClient(MousePosition) - f.Center
-				'Dim dis = Math.Sqrt(del.X ^ 2 + del.Y ^ 2)
-				'Dim min = Math.Min(f.Width, f.Height)
-				'Dim max = Math.Max(f.Width, f.Height)
-				If f.Bounding.Contains(mp) Then
+				Dim del = mp - f.Center
+				Dim dis = Math.Sqrt(del.X ^ 2 + del.Y ^ 2)
+				Dim min = Math.Min(f.Width, f.Height)
+				Dim max = Math.Max(f.Width, f.Height)
+				If dis < min / 2 Then
 					fx.Current.Remove(f)
+					engine.RemoveRegion(f)
 					Exit For
 				End If
 

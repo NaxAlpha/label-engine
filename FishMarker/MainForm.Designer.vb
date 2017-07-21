@@ -38,18 +38,18 @@ Partial Class MainForm
 		Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
 		Me.lbl = New System.Windows.Forms.ToolStripLabel()
 		Me.ToolStripSeparator7 = New System.Windows.Forms.ToolStripSeparator()
+		Me.ToolStripLabel1 = New System.Windows.Forms.ToolStripLabel()
+		Me.txtAspect = New System.Windows.Forms.ToolStripTextBox()
+		Me.ToolStripSeparator8 = New System.Windows.Forms.ToolStripSeparator()
 		Me.txtFrm = New System.Windows.Forms.ToolStripTextBox()
 		Me.ToolStripButton7 = New System.Windows.Forms.ToolStripButton()
 		Me.ToolStripSeparator5 = New System.Windows.Forms.ToolStripSeparator()
 		Me.btnTrack = New System.Windows.Forms.ToolStripButton()
+		Me.ToolStripSeparator6 = New System.Windows.Forms.ToolStripSeparator()
+		Me.btnDetect = New System.Windows.Forms.ToolStripButton()
 		Me.tmr = New System.Windows.Forms.Timer(Me.components)
 		Me.Panel1 = New System.Windows.Forms.Panel()
 		Me.img = New System.Windows.Forms.PictureBox()
-		Me.ToolStripSeparator6 = New System.Windows.Forms.ToolStripSeparator()
-		Me.btnDetect = New System.Windows.Forms.ToolStripButton()
-		Me.txtAspect = New System.Windows.Forms.ToolStripTextBox()
-		Me.ToolStripSeparator8 = New System.Windows.Forms.ToolStripSeparator()
-		Me.ToolStripLabel1 = New System.Windows.Forms.ToolStripLabel()
 		Me.ToolStrip1.SuspendLayout()
 		Me.Panel1.SuspendLayout()
 		CType(Me.img, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -156,6 +156,23 @@ Partial Class MainForm
 		Me.ToolStripSeparator7.Name = "ToolStripSeparator7"
 		Me.ToolStripSeparator7.Size = New System.Drawing.Size(6, 27)
 		'
+		'ToolStripLabel1
+		'
+		Me.ToolStripLabel1.Name = "ToolStripLabel1"
+		Me.ToolStripLabel1.Size = New System.Drawing.Size(96, 24)
+		Me.ToolStripLabel1.Text = "Aspect Ratio:"
+		'
+		'txtAspect
+		'
+		Me.txtAspect.Name = "txtAspect"
+		Me.txtAspect.Size = New System.Drawing.Size(100, 27)
+		Me.txtAspect.Text = "0.25"
+		'
+		'ToolStripSeparator8
+		'
+		Me.ToolStripSeparator8.Name = "ToolStripSeparator8"
+		Me.ToolStripSeparator8.Size = New System.Drawing.Size(6, 27)
+		'
 		'txtFrm
 		'
 		Me.txtFrm.Name = "txtFrm"
@@ -187,6 +204,20 @@ Partial Class MainForm
 		Me.btnTrack.Size = New System.Drawing.Size(126, 24)
 		Me.btnTrack.Text = "Tracking Enabled"
 		'
+		'ToolStripSeparator6
+		'
+		Me.ToolStripSeparator6.Name = "ToolStripSeparator6"
+		Me.ToolStripSeparator6.Size = New System.Drawing.Size(6, 27)
+		'
+		'btnDetect
+		'
+		Me.btnDetect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
+		Me.btnDetect.Image = CType(resources.GetObject("btnDetect.Image"), System.Drawing.Image)
+		Me.btnDetect.ImageTransparentColor = System.Drawing.Color.Magenta
+		Me.btnDetect.Name = "btnDetect"
+		Me.btnDetect.Size = New System.Drawing.Size(132, 24)
+		Me.btnDetect.Text = "Detect Remaining"
+		'
 		'tmr
 		'
 		Me.tmr.Enabled = True
@@ -211,37 +242,6 @@ Partial Class MainForm
 		Me.img.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize
 		Me.img.TabIndex = 2
 		Me.img.TabStop = False
-		'
-		'ToolStripSeparator6
-		'
-		Me.ToolStripSeparator6.Name = "ToolStripSeparator6"
-		Me.ToolStripSeparator6.Size = New System.Drawing.Size(6, 27)
-		'
-		'btnDetect
-		'
-		Me.btnDetect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
-		Me.btnDetect.Image = CType(resources.GetObject("btnDetect.Image"), System.Drawing.Image)
-		Me.btnDetect.ImageTransparentColor = System.Drawing.Color.Magenta
-		Me.btnDetect.Name = "btnDetect"
-		Me.btnDetect.Size = New System.Drawing.Size(132, 24)
-		Me.btnDetect.Text = "Detect Remaining"
-		'
-		'txtAspect
-		'
-		Me.txtAspect.Name = "txtAspect"
-		Me.txtAspect.Size = New System.Drawing.Size(100, 27)
-		Me.txtAspect.Text = "0.25"
-		'
-		'ToolStripSeparator8
-		'
-		Me.ToolStripSeparator8.Name = "ToolStripSeparator8"
-		Me.ToolStripSeparator8.Size = New System.Drawing.Size(6, 27)
-		'
-		'ToolStripLabel1
-		'
-		Me.ToolStripLabel1.Name = "ToolStripLabel1"
-		Me.ToolStripLabel1.Size = New System.Drawing.Size(96, 24)
-		Me.ToolStripLabel1.Text = "Aspect Ratio:"
 		'
 		'MainForm
 		'
