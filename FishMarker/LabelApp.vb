@@ -1,5 +1,6 @@
 ﻿Imports System.IO
 Imports OpenCvSharp
+Imports OpenCvSharp.Extensions
 
 Public Class LabelApp
 	Implements IDisposable
@@ -51,19 +52,34 @@ Public Class LabelApp
 
 	Private frame As New Mat
 
+	Private Function BoundPoint(p As Drawing.Point) As Drawing.Point
+		If p.X < 0 Then p.X = 0
+		If p.X >= frame.Width Then p.X = frame.Width - 1
+		If p.Y < 0 Then p.Y = 0
+		If p.Y >= frame.Height Then p.Y = frame.Height - 1
+		Return p
+	End Function
+
 	Public Sub ReadFrame()
+		If FrameID >= FrameCount Then Return
 		fishes.Move()
 		capture.Read(frame)
-		If trackerEnabled Then
+		If trackerEnabled AndAlso FrameID >= 1 Then
 			fishes.Current.Clear()
 			tracker.Track(frame)
-			fishes.Current.AddRange(tracker.ListRegions())
+			Dim regions = tracker.ListRegions()
+			For Each f In regions
+				f.Start = BoundPoint(f.Start)
+				f.End = BoundPoint(f.End)
+			Next
+			fishes.Current.AddRange(regions)
 		End If
 	End Sub
 
 	Public Sub ReloadVideo()
 		If Not IsLoaded Then Return
 		fishes.Reset()
+		UnloadVideo()
 		LoadVideo(videoFile)
 	End Sub
 
@@ -72,6 +88,7 @@ Public Class LabelApp
 			If fid = FrameID Then Return
 			If fid < FrameID Then ReloadVideo()
 			While FrameID <> fid
+				If FrameID = FrameCount Then Exit While
 				capture.Read(frame)
 				fishes.Move()
 			End While
@@ -80,6 +97,16 @@ Public Class LabelApp
 			End If
 		End If
 	End Sub
+
+	Public Sub PreviousFrame()
+		If FrameID > 0 Then
+			SkipToFrame(FrameID - 1)
+		End If
+	End Sub
+
+	Public Function CurrentFrame() As Bitmap
+		Return frame.ToBitmap()
+	End Function
 
 #End Region
 
@@ -93,11 +120,23 @@ Public Class LabelApp
 
 	Public Sub RemoveByPoint(p As Point2f)
 		For Each f In fishes.Current
-			If f.Bounding.Contains(p.ToPoint()) Then
+			Dim del = p.ToPoint() - f.Center
+			Dim dis = Math.Sqrt(del.X ^ 2 + del.Y ^ 2)
+			Dim min = Math.Min(f.Width, f.Height)
+			Dim max = Math.Max(f.Width, f.Height)
+			If dis < min / 2 Then
 				fishes.Current.Remove(f)
 				Return
 			End If
 		Next
+	End Sub
+
+	Public Function ListFishes() As List(Of Fish)
+		Return fishes.Current
+	End Function
+
+	Public Sub Save()
+		fishes.Save(fishFile)
 	End Sub
 
 #End Region

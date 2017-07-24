@@ -95,7 +95,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APIs.vb" />
-    <Compile Include="CvEngine.vb" />
     <Compile Include="CvTracker.vb" />
     <Compile Include="Fish.vb" />
     <Compile Include="LabelApp.vb" />
@@ -145,6 +144,21 @@
     </None>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\002-eject.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\003-rewind.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\004-fast-forward.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\route.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\delete.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

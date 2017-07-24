@@ -1,21 +1,15 @@
 ﻿Imports System.IO
 Imports System.Net
-Imports System.Web.Configuration
-Imports RestSharp
 
 Public Class MainForm
+
+	Private app As New LabelApp
 
 	Dim start As Point
 	Dim ender As Point
 	Dim creating As Boolean
 
-	Private fx As New FishCollection
-
-	Private videoFile As String = ""
-	Private fishFile As String = ""
-	Private engine As New CvEngine
-
-	Dim play As Boolean = False
+	Dim aspect As Double = 0
 
 	Private Async Function DownloadFile(url As String) As Task(Of String)
 		Dim req As HttpWebRequest = WebRequest.Create(url)
@@ -27,6 +21,9 @@ Public Class MainForm
 	End Function
 
 	Private Async Sub CheckForUpdate()
+#If DEBUG Then
+		Return
+#End If
 		Await Task.Delay(1)
 		Try
 			Dim txt = Await DownloadFile("https://api.github.com/repos/NaxAlpha/label-engine/releases/latest")
@@ -42,54 +39,14 @@ Public Class MainForm
 		End Try
 	End Sub
 
-	Private Sub MoveSingleFrame()
-		If engine.IsOpened Then
-			engine.MoveNext()
-			img.Image = engine.ToBitmap()
-			lbl.Text = $"Progress: {engine.FrameID}/{engine.FrameCount}"
-			fx.Move()
-			If btnTrack.Checked Then
-				fx.Current.Clear()
-				engine.Track()
-				For Each bb In engine.ListRegions()
-					fx.Current.Add(bb)
-				Next
-			End If
-			fx.Save(fishFile)
-		End If
-	End Sub
-
-	Private Sub SkipToFrame(fid As Integer)
-		If engine.IsOpened Then
-			If fid = engine.FrameID Then
-				Return
-			End If
-			If fid < engine.FrameID Then
-				ReloadVideo()
-			End If
-			While engine.FrameID <> fid
-				engine.MoveNext()
-				fx.Move()
-			End While
-
-			engine.StopTracking()
-			engine.StartTracking()
-			For Each f In fx.Current
-				engine.AddRegion(f)
-			Next
-
-			img.Image = engine.ToBitmap()
-			lbl.Text = $"Progress: {engine.FrameID}/{engine.FrameCount}"
-		End If
-	End Sub
-
 	Private Function GetOuterBounds(f As Fish) As Rectangle
 		Dim r As New OpenCvSharp.RotatedRect(f.Center.ToPoint2f(), New OpenCvSharp.Size2f(f.Width, f.Height), f.Angle * 180 / Math.PI)
 		Return r.BoundingRect().ToRectangle()
 	End Function
 
 	Private Sub RenderFishes(g As Graphics)
-		For Each f In fx.Current
+		For Each f In app.ListFishes()
+			f = Transform(f)
 			g.TranslateTransform(f.Center.X, f.Center.Y)
 
 			g.RotateTransform(f.Angle * 180 / Math.PI)
@@ -115,26 +72,6 @@ Public Class MainForm
 		Next
 	End Sub
 
-	Private Sub RenderFlow(g As Graphics)
-		Dim pts = engine.GetFlowPoints()
-		For i = 0 To pts.[new].Count - 1
-			Dim pt = pts.[new](i)
-			Dim ptOld = pts.old(i)
-			g.FillEllipse(Brushes.White, ptOld.X - 1, ptOld.Y - 1, 2, 2)
-			g.FillEllipse(Brushes.Black, pt.X - 1, pt.Y - 1, 2, 2)
-			g.DrawLine(Pens.Gray, ptOld.X, ptOld.Y, pt.X, pt.Y)
-		Next
-	End Sub
-
-	Private Sub ReloadVideo() Handles ToolStripButton6.Click
-		If engine.IsOpened Then
-			engine.Close()
-			engine.Open(videoFile)
-			fx.Reset()
-			img.Image = Nothing
-		End If
-	End Sub
-
 	Private Sub img_Paint(sender As Object, e As PaintEventArgs) Handles img.Paint
 		Dim g = e.Graphics
 		g.CompositingQuality = Drawing2D.CompositingQuality.HighQuality
@@ -143,9 +80,6 @@ Public Class MainForm
 		g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
 
 		RenderFishes(g)
-		If btnTrack.Checked AndAlso fx.Current.Count < 3 Then
-			RenderFlow(g)
-		End If
 
 		If creating Then
 			g.DrawLine(Pens.Red, start, ender)
@@ -154,24 +88,22 @@ Public Class MainForm
 	End Sub
 
 	Private Sub img_MouseDown(sender As Object, e As MouseEventArgs) Handles img.MouseDown
-		If e.Button <> MouseButtons.Left OrElse Not engine.IsOpened Then Return
+		If e.Button <> MouseButtons.Left OrElse Not app.IsLoaded Then Return
 		start = e.Location
 		ender = e.Location
 		creating = True
 	End Sub
 
 	Private Sub img_MouseUp(sender As Object, e As MouseEventArgs) Handles img.MouseUp
-		If Not creating OrElse e.Button <> MouseButtons.Left OrElse Not engine.IsOpened Then Return
+		If Not creating OrElse e.Button <> MouseButtons.Left OrElse Not app.IsLoaded Then Return
 
 		ender = e.Location
 		creating = False
 
-		Dim f = New Fish(start, ender, Val(txtAspect.Text))
-
-		fx.Current.Add(f)
+		Dim f = iTransform(New Fish(start, ender, 2 * progAr.Value / progAr.Maximum))
 
 		If btnTrack.Checked Then
-			engine.AddRegion(f)
+			app.AddFish(f)
 		End If
 	End Sub
 
@@ -183,102 +115,118 @@ Public Class MainForm
 
 	Private Sub img_MouseClick(sender As Object, e As MouseEventArgs) Handles img.MouseClick
 		If e.Button = MouseButtons.Right Then
-
 			Dim mp = img.PointToClient(MousePosition)
-
-			For Each f In fx.Current
-				Dim del = mp - f.Center
-				Dim dis = Math.Sqrt(del.X ^ 2 + del.Y ^ 2)
-				Dim min = Math.Min(f.Width, f.Height)
-				Dim max = Math.Max(f.Width, f.Height)
-				If dis < min / 2 Then
-					fx.Current.Remove(f)
-					engine.RemoveRegion(f)
-					Exit For
-				End If
-
-			Next
-
+			app.RemoveByPoint(iTransform(mp).ToPoint2f())
 		End If
 	End Sub
 
 	Private Sub ToolStripButton1_Click(sender As Object, e As EventArgs) Handles ToolStripButton1.Click
 		Using ofd As New OpenFileDialog
 			If ofd.ShowDialog() = DialogResult.OK Then
-				If engine.IsOpened Then
-					engine.Close()
-					fx.Clear()
+				If app.IsLoaded Then
+					app.UnloadVideo()
 				End If
-				videoFile = ofd.FileName
-				engine.Open(videoFile)
-				fishFile = videoFile + ".fish"
-				If File.Exists(fishFile) Then
-					fx.Load(fishFile)
-				End If
-				txtFileName.Text = Path.GetFileName(videoFile)
-				lbl.Text = $"Progress: {0}/{engine.FrameCount}"
-				img.Image = Nothing
+				app.LoadVideo(ofd.FileName)
+				progFid.Maximum = app.FrameCount
+				lblProg.Text = $"Progress: {0}/{progFid.Maximum}"
+				app.SkipToFrame(1)
+				img.Image = app.CurrentFrame()
+				app.TrackingEnabled = True
 			End If
 		End Using
 	End Sub
 
-	Private Sub ToolStripButton5_Click(sender As Object, e As EventArgs) Handles ToolStripButton5.Click
-		If Not engine.IsOpened OrElse Not File.Exists(fishFile) Then Return
-		fx.Load(fishFile)
-	End Sub
-
-	Private Sub ToolStripButton2_Click(sender As Object, e As EventArgs) Handles ToolStripButton2.Click
-		play = Not play
-		ToolStripButton2.Checked = play
-	End Sub
-
-	Private Sub ToolStripButton4_Click(sender As Object, e As EventArgs) Handles ToolStripButton4.Click
-		If engine.IsOpened Then
-			fx.Save(fishFile)
-		End If
-	End Sub
-
 	Private Sub ToolStripButton3_Click(sender As Object, e As EventArgs) Handles ToolStripButton3.Click
-		MoveSingleFrame()
-	End Sub
-
-	Private Sub tmr_Tick(sender As Object, e As EventArgs) Handles tmr.Tick
-		img.Invalidate()
-		If play Then MoveSingleFrame()
-	End Sub
-
-	Private Sub ToolStripButton7_Click(sender As Object, e As EventArgs) Handles ToolStripButton7.Click
-		SkipToFrame(Val(txtFrm.Text))
-	End Sub
-
-	Private Sub txtFrm_Click(sender As Object, e As EventArgs) Handles txtFrm.Click
-		txtFrm.Text = CUInt(Val(txtFrm.Text)).ToString()
+		If Not app.IsLoaded Then Return
+		app.ReadFrame()
+		app.Save()
+		Try
+			img.Image = app.CurrentFrame()
+		Catch ex As Exception
+			img.Image = Nothing
+		End Try
 	End Sub
 
 	Private Sub MainForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 		Text = Text + " " + Application.ProductVersion
 		CheckForUpdate()
+		app.TrackingEnabled = True
 	End Sub
 
 	Private Sub btnTrack_Click(sender As Object, e As EventArgs) Handles btnTrack.Click
 		btnTrack.Checked = Not btnTrack.Checked
 		btnTrack.Text = "Tracking " + If(btnTrack.Checked, "Enabled", "Disabled")
-		If btnTrack.Checked Then
-			engine.StartTracking()
-			For Each f In fx.Current
-				engine.AddRegion(f)
-			Next
-		Else
-			engine.StopTracking()
+		app.TrackingEnabled = btnTrack.Checked
+	End Sub
+
+	Private Sub tmr_Tick(sender As Object, e As EventArgs) Handles tmr.Tick
+		If img.Height <> mainPanel.Height - 25 Then
+			img.Height = mainPanel.Height - 25
+		End If
+		If img.Image IsNot Nothing Then
+			aspect = img.Height / img.Image.Height
+			img.Width = img.Image.Width * aspect
+		End If
+		progFid.Value = app.FrameID
+		lblAr.Text = $"Aspect Ratio: {2 * progAr.Value / progAr.Maximum}"
+		lblProg.Text = $"Progress: {progFid.Value}/{progFid.Maximum}"
+		img.Invalidate()
+	End Sub
+
+	Private Sub progFid_MouseMoveOrUp(sender As Object, e As MouseEventArgs) Handles progFid.MouseMove, progFid.MouseUp
+		If e.Button = MouseButtons.Left Then
+			Dim mp = progFid.Control.PointToClient(MousePosition)
+			Dim vl = mp.X * progFid.Maximum / progFid.Width
+			If vl <= 0 OrElse vl > progFid.Maximum - 2 Then Return
+			progFid.Value = vl
+			app.SkipToFrame(progFid.Value)
+			Try
+				img.Image = app.CurrentFrame()
+			Catch ex As Exception
+				img.Image = Nothing
+			End Try
 		End If
 	End Sub
 
-	Private Sub ToolStripButton9_Click(sender As Object, e As EventArgs)
-		engine.StopTracking()
+	Private Sub progAr_MouseMoveOrDown(sender As Object, e As MouseEventArgs) Handles progAr.MouseMove, progAr.MouseDown
+		If e.Button = MouseButtons.Left Then
+			Dim mp = progAr.Control.PointToClient(MousePosition)
+			Dim vl = mp.X * progAr.Maximum / progAr.Width
+			If vl < 0 OrElse vl >= progAr.Maximum Then Return
+			progAr.Value = vl
+		End If
 	End Sub
 
-	Private Sub txtAspect_Click(sender As Object, e As EventArgs) Handles txtAspect.Click
-		txtAspect.Text = Val(txtAspect.Text)
+	Private Function Transform(pt As Point) As Point
+		Return New Point(pt.X * aspect, pt.Y * aspect)
+	End Function
+
+	Private Function iTransform(pt As Point) As Point
+		Return New Point(pt.X / aspect, pt.Y / aspect)
+	End Function
+
+	Private Function Transform(f As Fish) As Fish
+		Return New Fish(Transform(f.Start), Transform(f.End), f.Aspect)
+	End Function
+
+	Private Function iTransform(f As Fish) As Fish
+		Return New Fish(iTransform(f.Start), iTransform(f.End), f.Aspect)
+	End Function
+
+	Private Sub ToolStripButton2_Click(sender As Object, e As EventArgs) Handles ToolStripButton2.Click
+		app.PreviousFrame()
+		Try
+			img.Image = app.CurrentFrame()
+		Catch ex As Exception
+			img.Image = Nothing
+		End Try
 	End Sub
 
+	Private Sub ToolStripButton4_Click(sender As Object, e As EventArgs) Handles ToolStripButton4.Click
+		app.ListFishes().Clear()
+	End Sub
+
+	Private Sub MainForm_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
+		app.Save()
+	End Sub
 End Class
