@@ -62,7 +62,7 @@ Public Class LabelApp
 
 	Public Sub ReadFrame()
 		If FrameID >= FrameCount Then Return
-		TrackingEnabled = True
+		If TrackingEnabled Then TrackingEnabled = True 'Fore Re-enable
 		fishes.Move()
 		capture.Read(frame)
 		If trackerEnabled AndAlso FrameID >= 1 Then
@@ -137,6 +137,7 @@ Public Class LabelApp
 	End Function
 
 	Public Sub Save()
+		If Not IsLoaded Then Return
 		fishes.Save(fishFile)
 	End Sub
 

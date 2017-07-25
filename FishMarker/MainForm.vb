@@ -1,5 +1,7 @@
 ﻿Imports System.IO
+Imports System.IO.Compression
 Imports System.Net
+Imports System.Threading
 
 Public Class MainForm
 
@@ -20,11 +22,47 @@ Public Class MainForm
 		End Using
 	End Function
 
+	Private Async Function DownloadData(url As String) As Task(Of Byte())
+		Using wc As New WebClient()
+			wc.Headers.Add("User-Agent", "Cool")
+			'wc.Headers.Add("Accept", "application/vnd.github.v3+json")
+			Return Await wc.DownloadDataTaskAsync(New Uri(url))
+		End Using
+	End Function
+
+	Private Async Function AppUpdate(url As String) As Task
+		lblUpdate.Text = "Downloading..."
+		Dim appdata = Await DownloadData(url)
+		Dim tmp = Path.GetTempFileName()
+		File.WriteAllBytes(tmp, appdata)
+		Dim tmp2 = Path.GetTempPath() + "LabelEngine-Update"
+		If Directory.Exists(tmp2) Then
+			Directory.Delete(tmp2, True)
+		End If
+		Directory.CreateDirectory(tmp2)
+		lblUpdate.Text = "Extracting..."
+		ZipFile.ExtractToDirectory(tmp, tmp2)
+		File.Delete(tmp)
+		lblUpdate.Text = "App restarts in 3 seconds..."
+		Dim tmp3 = Path.GetTempPath() + "LabelEngine.cmd"
+		Dim cmds = {"echo off",
+			"cls",
+			"echo Waiting for App to close...",
+			"timeout 3",
+			"echo Copying files",
+			$"xcopy ""{tmp2}"" ""{Directory.GetCurrentDirectory()}"" /Y /E",
+			"echo Starting app...",
+			$"cd ""{Application.StartupPath}""",
+			$"start /w /b {Path.GetFileName(Application.ExecutablePath)}",
+			"exit"}
+		File.WriteAllLines(tmp3, cmds)
+		Using p = Process.Start(tmp3)
+		End Using
+		End
+	End Function
+
 	Private Async Sub CheckForUpdate()
-#If DEBUG Then
-		Return
-#End If
-		Await Task.Delay(1)
+		Await Task.Delay(1000)
 		Try
 			Dim txt = Await DownloadFile("https://api.github.com/repos/NaxAlpha/label-engine/releases/latest")
 			Dim obj As Newtonsoft.Json.Linq.JObject = Newtonsoft.Json.JsonConvert.DeserializeObject(txt)
@@ -32,10 +70,13 @@ Public Class MainForm
 			Dim newver = Val(tag.Split("."c, "-"c)(2))
 			Dim build = Val(Application.ProductVersion.Split("."c, "-"c)(2))
 			If build < newver Then
-				MessageBox.Show("Newer version is avaiable on Github: NaxAlpha/label-engine")
+				lblUpdate.Text = "Newer version is avaiable, Press Update button to update!"
+			Else
+				lblUpdate.Text = "You are using latest version of this software!"
+				btnUpdate.Enabled = False
 			End If
 		Catch ex As Exception
-			MessageBox.Show("Failed to check for update!")
+			lblUpdate.Text = "Failed to check for update!"
 		End Try
 	End Sub
 
@@ -229,4 +270,36 @@ Public Class MainForm
 	Private Sub MainForm_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
 		app.Save()
 	End Sub
+
+	Private Sub txtFid_Click(sender As Object, e As EventArgs) Handles txtFid.Click
+		txtFid.Text = Val(txtFid.Text)
+	End Sub
+
+	Private Sub ToolStripButton5_Click(sender As Object, e As EventArgs) Handles ToolStripButton5.Click
+		app.SkipToFrame(Val(txtFid.Text))
+	End Sub
+
+	Private Async Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
+		btnUpdate.Enabled = False
+		Try
+			Dim txt = Await DownloadFile("https://api.github.com/repos/NaxAlpha/label-engine/releases/latest")
+			Dim obj As Newtonsoft.Json.Linq.JObject = Newtonsoft.Json.JsonConvert.DeserializeObject(txt)
+			Dim tag = obj("tag_name").ToString()
+			Dim newver = Val(tag.Split("."c, "-"c)(2))
+			Dim build = Val(Application.ProductVersion.Split("."c, "-"c)(2))
+			If build < newver Then
+				lblUpdate.Text = "Newer version is avaiable, Updating please wait..."
+				Dim assets As Newtonsoft.Json.Linq.JArray = obj("assets")
+				Dim firstAsset = assets(0)
+				Dim downloadUrl = firstAsset("browser_download_url").ToString()
+				Await AppUpdate(downloadUrl)
+			Else
+				lblUpdate.Text = "You are using latest version of this software!"
+			End If
+		Catch ex As Exception
+			lblUpdate.Text = "Failed to check for update!"
+		End Try
+		btnUpdate.Enabled = True
+	End Sub
+
 End Class
