@@ -101,10 +101,10 @@ Public Class MainForm
 		creating = False
 
 		Dim f = iTransform(New Fish(start, ender, 2 * progAr.Value / progAr.Maximum))
-
-		If btnTrack.Checked Then
-			app.AddFish(f)
+		If f.Width < 20 Then
+			Return
 		End If
+		app.AddFish(f)
 	End Sub
 
 	Private Sub img_MouseMove(sender As Object, e As MouseEventArgs) Handles img.MouseMove
