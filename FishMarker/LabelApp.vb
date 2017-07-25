@@ -27,7 +27,7 @@ Public Class LabelApp
 	Public ReadOnly Property FrameCount As Integer
 		Get
 			If Not IsLoaded Then Return 0
-			Return capture.Get(CaptureProperty.FrameCount)
+			Return capture.Get(CaptureProperty.FrameCount) - 2
 		End Get
 	End Property
 
