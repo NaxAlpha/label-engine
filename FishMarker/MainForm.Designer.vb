@@ -24,30 +24,26 @@ Partial Class MainForm
 	Private Sub InitializeComponent()
 		Me.components = New System.ComponentModel.Container()
 		Me.tools = New System.Windows.Forms.ToolStrip()
+		Me.ToolStripButton1 = New System.Windows.Forms.ToolStripButton()
 		Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
+		Me.ToolStripButton2 = New System.Windows.Forms.ToolStripButton()
+		Me.ToolStripButton3 = New System.Windows.Forms.ToolStripButton()
 		Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
+		Me.ToolStripButton4 = New System.Windows.Forms.ToolStripButton()
+		Me.btnTrack = New System.Windows.Forms.ToolStripButton()
 		Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator()
 		Me.ToolStripLabel1 = New System.Windows.Forms.ToolStripLabel()
 		Me.progFid = New System.Windows.Forms.ToolStripProgressBar()
 		Me.txtFid = New System.Windows.Forms.ToolStripTextBox()
+		Me.ToolStripButton5 = New System.Windows.Forms.ToolStripButton()
 		Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
-		Me.ToolStripLabel2 = New System.Windows.Forms.ToolStripLabel()
-		Me.progAr = New System.Windows.Forms.ToolStripProgressBar()
-		Me.ToolStripSeparator5 = New System.Windows.Forms.ToolStripSeparator()
+		Me.btnUpdate = New System.Windows.Forms.ToolStripButton()
 		Me.tmr = New System.Windows.Forms.Timer(Me.components)
 		Me.mainPanel = New System.Windows.Forms.Panel()
 		Me.status = New System.Windows.Forms.StatusStrip()
 		Me.lblProg = New System.Windows.Forms.ToolStripStatusLabel()
-		Me.lblAr = New System.Windows.Forms.ToolStripStatusLabel()
 		Me.lblUpdate = New System.Windows.Forms.ToolStripStatusLabel()
 		Me.img = New System.Windows.Forms.PictureBox()
-		Me.ToolStripButton1 = New System.Windows.Forms.ToolStripButton()
-		Me.ToolStripButton2 = New System.Windows.Forms.ToolStripButton()
-		Me.ToolStripButton3 = New System.Windows.Forms.ToolStripButton()
-		Me.ToolStripButton4 = New System.Windows.Forms.ToolStripButton()
-		Me.btnTrack = New System.Windows.Forms.ToolStripButton()
-		Me.ToolStripButton5 = New System.Windows.Forms.ToolStripButton()
-		Me.btnUpdate = New System.Windows.Forms.ToolStripButton()
 		Me.tools.SuspendLayout()
 		Me.mainPanel.SuspendLayout()
 		Me.status.SuspendLayout()
@@ -57,21 +53,68 @@ Partial Class MainForm
 		'tools
 		'
 		Me.tools.ImageScalingSize = New System.Drawing.Size(40, 40)
-		Me.tools.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripButton1, Me.ToolStripSeparator1, Me.ToolStripButton2, Me.ToolStripButton3, Me.ToolStripSeparator2, Me.ToolStripButton4, Me.btnTrack, Me.ToolStripSeparator3, Me.ToolStripLabel1, Me.progFid, Me.txtFid, Me.ToolStripButton5, Me.ToolStripSeparator4, Me.ToolStripLabel2, Me.progAr, Me.ToolStripSeparator5, Me.btnUpdate})
+		Me.tools.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripButton1, Me.ToolStripSeparator1, Me.ToolStripButton2, Me.ToolStripButton3, Me.ToolStripSeparator2, Me.ToolStripButton4, Me.btnTrack, Me.ToolStripSeparator3, Me.ToolStripLabel1, Me.progFid, Me.txtFid, Me.ToolStripButton5, Me.ToolStripSeparator4, Me.btnUpdate})
 		Me.tools.Location = New System.Drawing.Point(0, 0)
 		Me.tools.Name = "tools"
 		Me.tools.Size = New System.Drawing.Size(1481, 47)
 		Me.tools.TabIndex = 0
+		'
+		'ToolStripButton1
+		'
+		Me.ToolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+		Me.ToolStripButton1.Image = Global.FishMarker.My.Resources.Resources._002_eject
+		Me.ToolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta
+		Me.ToolStripButton1.Name = "ToolStripButton1"
+		Me.ToolStripButton1.Size = New System.Drawing.Size(44, 44)
+		Me.ToolStripButton1.Text = "Load Video"
 		'
 		'ToolStripSeparator1
 		'
 		Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
 		Me.ToolStripSeparator1.Size = New System.Drawing.Size(6, 47)
 		'
+		'ToolStripButton2
+		'
+		Me.ToolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+		Me.ToolStripButton2.Image = Global.FishMarker.My.Resources.Resources._003_rewind
+		Me.ToolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta
+		Me.ToolStripButton2.Name = "ToolStripButton2"
+		Me.ToolStripButton2.Size = New System.Drawing.Size(44, 44)
+		Me.ToolStripButton2.Text = "Previous Frame"
+		'
+		'ToolStripButton3
+		'
+		Me.ToolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+		Me.ToolStripButton3.Image = Global.FishMarker.My.Resources.Resources._004_fast_forward
+		Me.ToolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta
+		Me.ToolStripButton3.Name = "ToolStripButton3"
+		Me.ToolStripButton3.Size = New System.Drawing.Size(44, 44)
+		Me.ToolStripButton3.Text = "Next Frame"
+		'
 		'ToolStripSeparator2
 		'
 		Me.ToolStripSeparator2.Name = "ToolStripSeparator2"
 		Me.ToolStripSeparator2.Size = New System.Drawing.Size(6, 47)
+		'
+		'ToolStripButton4
+		'
+		Me.ToolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+		Me.ToolStripButton4.Image = Global.FishMarker.My.Resources.Resources.delete
+		Me.ToolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta
+		Me.ToolStripButton4.Name = "ToolStripButton4"
+		Me.ToolStripButton4.Size = New System.Drawing.Size(44, 44)
+		Me.ToolStripButton4.Text = "Clear This Frame"
+		'
+		'btnTrack
+		'
+		Me.btnTrack.Checked = True
+		Me.btnTrack.CheckState = System.Windows.Forms.CheckState.Checked
+		Me.btnTrack.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+		Me.btnTrack.Image = Global.FishMarker.My.Resources.Resources.route
+		Me.btnTrack.ImageTransparentColor = System.Drawing.Color.Magenta
+		Me.btnTrack.Name = "btnTrack"
+		Me.btnTrack.Size = New System.Drawing.Size(44, 44)
+		Me.btnTrack.Text = "Tracking Enabled"
 		'
 		'ToolStripSeparator3
 		'
@@ -96,27 +139,28 @@ Partial Class MainForm
 		Me.txtFid.Size = New System.Drawing.Size(100, 47)
 		Me.txtFid.Text = "0"
 		'
+		'ToolStripButton5
+		'
+		Me.ToolStripButton5.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+		Me.ToolStripButton5.Image = Global.FishMarker.My.Resources.Resources.Button_Next_icon
+		Me.ToolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta
+		Me.ToolStripButton5.Name = "ToolStripButton5"
+		Me.ToolStripButton5.Size = New System.Drawing.Size(44, 44)
+		Me.ToolStripButton5.Text = "Go to Frame"
+		'
 		'ToolStripSeparator4
 		'
 		Me.ToolStripSeparator4.Name = "ToolStripSeparator4"
 		Me.ToolStripSeparator4.Size = New System.Drawing.Size(6, 47)
 		'
-		'ToolStripLabel2
+		'btnUpdate
 		'
-		Me.ToolStripLabel2.Name = "ToolStripLabel2"
-		Me.ToolStripLabel2.Size = New System.Drawing.Size(96, 44)
-		Me.ToolStripLabel2.Text = "Aspect Ratio:"
-		'
-		'progAr
-		'
-		Me.progAr.Name = "progAr"
-		Me.progAr.Size = New System.Drawing.Size(200, 44)
-		Me.progAr.Value = 25
-		'
-		'ToolStripSeparator5
-		'
-		Me.ToolStripSeparator5.Name = "ToolStripSeparator5"
-		Me.ToolStripSeparator5.Size = New System.Drawing.Size(6, 47)
+		Me.btnUpdate.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+		Me.btnUpdate.Image = Global.FishMarker.My.Resources.Resources.update_arrows
+		Me.btnUpdate.ImageTransparentColor = System.Drawing.Color.Magenta
+		Me.btnUpdate.Name = "btnUpdate"
+		Me.btnUpdate.Size = New System.Drawing.Size(44, 44)
+		Me.btnUpdate.Text = "Update Now"
 		'
 		'tmr
 		'
@@ -137,7 +181,7 @@ Partial Class MainForm
 		'status
 		'
 		Me.status.ImageScalingSize = New System.Drawing.Size(20, 20)
-		Me.status.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.lblProg, Me.lblAr, Me.lblUpdate})
+		Me.status.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.lblProg, Me.lblUpdate})
 		Me.status.Location = New System.Drawing.Point(0, 570)
 		Me.status.Name = "status"
 		Me.status.Size = New System.Drawing.Size(1460, 29)
@@ -149,12 +193,6 @@ Partial Class MainForm
 		Me.lblProg.Name = "lblProg"
 		Me.lblProg.Size = New System.Drawing.Size(94, 24)
 		Me.lblProg.Text = "Progress: 0/0"
-		'
-		'lblAr
-		'
-		Me.lblAr.Name = "lblAr"
-		Me.lblAr.Size = New System.Drawing.Size(127, 24)
-		Me.lblAr.Text = "Aspect Ratio: 0.25"
 		'
 		'lblUpdate
 		'
@@ -174,71 +212,6 @@ Partial Class MainForm
 		Me.img.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
 		Me.img.TabIndex = 2
 		Me.img.TabStop = False
-		'
-		'ToolStripButton1
-		'
-		Me.ToolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-		Me.ToolStripButton1.Image = Global.FishMarker.My.Resources.Resources._002_eject
-		Me.ToolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta
-		Me.ToolStripButton1.Name = "ToolStripButton1"
-		Me.ToolStripButton1.Size = New System.Drawing.Size(44, 44)
-		Me.ToolStripButton1.Text = "Load Video"
-		'
-		'ToolStripButton2
-		'
-		Me.ToolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-		Me.ToolStripButton2.Image = Global.FishMarker.My.Resources.Resources._003_rewind
-		Me.ToolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta
-		Me.ToolStripButton2.Name = "ToolStripButton2"
-		Me.ToolStripButton2.Size = New System.Drawing.Size(44, 44)
-		Me.ToolStripButton2.Text = "Previous Frame"
-		'
-		'ToolStripButton3
-		'
-		Me.ToolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-		Me.ToolStripButton3.Image = Global.FishMarker.My.Resources.Resources._004_fast_forward
-		Me.ToolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta
-		Me.ToolStripButton3.Name = "ToolStripButton3"
-		Me.ToolStripButton3.Size = New System.Drawing.Size(44, 44)
-		Me.ToolStripButton3.Text = "Next Frame"
-		'
-		'ToolStripButton4
-		'
-		Me.ToolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-		Me.ToolStripButton4.Image = Global.FishMarker.My.Resources.Resources.delete
-		Me.ToolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta
-		Me.ToolStripButton4.Name = "ToolStripButton4"
-		Me.ToolStripButton4.Size = New System.Drawing.Size(44, 44)
-		Me.ToolStripButton4.Text = "Clear This Frame"
-		'
-		'btnTrack
-		'
-		Me.btnTrack.Checked = True
-		Me.btnTrack.CheckState = System.Windows.Forms.CheckState.Checked
-		Me.btnTrack.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-		Me.btnTrack.Image = Global.FishMarker.My.Resources.Resources.route
-		Me.btnTrack.ImageTransparentColor = System.Drawing.Color.Magenta
-		Me.btnTrack.Name = "btnTrack"
-		Me.btnTrack.Size = New System.Drawing.Size(44, 44)
-		Me.btnTrack.Text = "Tracking Enabled"
-		'
-		'ToolStripButton5
-		'
-		Me.ToolStripButton5.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-		Me.ToolStripButton5.Image = Global.FishMarker.My.Resources.Resources.Button_Next_icon
-		Me.ToolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta
-		Me.ToolStripButton5.Name = "ToolStripButton5"
-		Me.ToolStripButton5.Size = New System.Drawing.Size(44, 44)
-		Me.ToolStripButton5.Text = "Go to Frame"
-		'
-		'btnUpdate
-		'
-		Me.btnUpdate.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-		Me.btnUpdate.Image = Global.FishMarker.My.Resources.Resources.update_arrows
-		Me.btnUpdate.ImageTransparentColor = System.Drawing.Color.Magenta
-		Me.btnUpdate.Name = "btnUpdate"
-		Me.btnUpdate.Size = New System.Drawing.Size(44, 44)
-		Me.btnUpdate.Text = "Update Now"
 		'
 		'MainForm
 		'
@@ -278,14 +251,10 @@ Partial Class MainForm
 	Friend WithEvents ToolStripSeparator3 As ToolStripSeparator
 	Friend WithEvents ToolStripLabel1 As ToolStripLabel
 	Friend WithEvents ToolStripSeparator4 As ToolStripSeparator
-	Friend WithEvents ToolStripLabel2 As ToolStripLabel
 	Friend WithEvents progFid As ToolStripProgressBar
-	Friend WithEvents progAr As ToolStripProgressBar
-	Friend WithEvents lblAr As ToolStripStatusLabel
 	Friend WithEvents ToolStripButton4 As ToolStripButton
 	Friend WithEvents txtFid As ToolStripTextBox
 	Friend WithEvents ToolStripButton5 As ToolStripButton
-	Friend WithEvents ToolStripSeparator5 As ToolStripSeparator
 	Friend WithEvents btnUpdate As ToolStripButton
 	Friend WithEvents lblUpdate As ToolStripStatusLabel
 End Class

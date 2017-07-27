@@ -36,7 +36,7 @@ Public Class LabelApp
 			Throw New InvalidOperationException("Video already loaded!")
 		End If
 		videoFile = fileName
-		fishFile = videoFile + ".fish"
+		fishFile = videoFile + ".box"
 		If File.Exists(fishFile) Then fishes.Load(fishFile)
 		capture = VideoCapture.FromFile(fileName)
 	End Sub
@@ -52,12 +52,12 @@ Public Class LabelApp
 
 	Private frame As New Mat
 
-	Private Function BoundPoint(p As Drawing.Point) As Drawing.Point
-		If p.X < 0 Then p.X = 0
-		If p.X >= frame.Width Then p.X = frame.Width - 1
-		If p.Y < 0 Then p.Y = 0
-		If p.Y >= frame.Height Then p.Y = frame.Height - 1
-		Return p
+	Private Function BoundPoint(r As RectangleF) As RectangleF
+		If r.X < 0 Then r.X = 0
+		If r.X >= frame.Width Then r.Width = frame.Width - 1 - r.X
+		If r.Y < 0 Then r.Y = 0
+		If r.Bottom >= frame.Height Then r.Height = frame.Height - 1 - r.Y
+		Return r
 	End Function
 
 	Public Sub ReadFrame()
@@ -69,11 +69,7 @@ Public Class LabelApp
 			fishes.Current.Clear()
 			tracker.Track(frame)
 			Dim regions = tracker.ListRegions()
-			For Each f In regions
-				f.Start = BoundPoint(f.Start)
-				f.End = BoundPoint(f.End)
-			Next
-			fishes.Current.AddRange(regions)
+			fishes.Current.AddRange(regions.Select(Function(r) BoundPoint(r)))
 		End If
 	End Sub
 
@@ -115,24 +111,20 @@ Public Class LabelApp
 
 	Private fishes As New FishCollection
 
-	Public Sub AddFish(f As Fish)
+	Public Sub AddFish(f As RectangleF)
 		fishes.Current.Add(f)
 	End Sub
 
 	Public Sub RemoveByPoint(p As Point2f)
 		For Each f In fishes.Current
-			Dim del = p.ToPoint() - f.Center
-			Dim dis = Math.Sqrt(del.X ^ 2 + del.Y ^ 2)
-			Dim min = Math.Min(f.Width, f.Height)
-			Dim max = Math.Max(f.Width, f.Height)
-			If dis < min / 2 Then
+			If f.Contains(p.ToPoint()) Then
 				fishes.Current.Remove(f)
 				Return
 			End If
 		Next
 	End Sub
 
-	Public Function ListFishes() As List(Of Fish)
+	Public Function ListFishes() As List(Of RectangleF)
 		Return fishes.Current
 	End Function
 

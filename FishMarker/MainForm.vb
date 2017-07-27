@@ -80,36 +80,16 @@ Public Class MainForm
 		End Try
 	End Sub
 
-	Private Function GetOuterBounds(f As Fish) As Rectangle
-		Dim r As New OpenCvSharp.RotatedRect(f.Center.ToPoint2f(), New OpenCvSharp.Size2f(f.Width, f.Height), f.Angle * 180 / Math.PI)
-		Return r.BoundingRect().ToRectangle()
-	End Function
-
 	Private Sub RenderFishes(g As Graphics)
+		Dim moused As Boolean = False
 		For Each f In app.ListFishes()
 			f = Transform(f)
-			g.TranslateTransform(f.Center.X, f.Center.Y)
+			g.DrawRectangle(Pens.Red, f.ToRectangle())
 
-			g.RotateTransform(f.Angle * 180 / Math.PI)
-			g.DrawEllipse(Pens.Blue, -f.Width / 2, -f.Height / 2, f.Width, f.Height)
-			g.RotateTransform(-f.Angle * 180 / Math.PI)
-
-			Dim del = img.PointToClient(MousePosition) - f.Center
-			Dim dis = Math.Sqrt(del.X ^ 2 + del.Y ^ 2)
-			Dim min = Math.Min(f.Width, f.Height)
-			Dim max = Math.Max(f.Width, f.Height)
-
-			g.DrawEllipse(Pens.Yellow, -min / 2, -min / 2, min, min)
-
-			If dis < min / 2 Then
-				g.FillEllipse(New SolidBrush(Color.FromArgb(128, Color.Gold)), -min / 2, -min / 2, min, min)
+			If Not moused AndAlso f.Contains(img.PointToClient(MousePosition)) Then
+				g.FillRectangle(New SolidBrush(Color.FromArgb(128, Color.Gold)), f)
+				moused = True
 			End If
-
-			g.TranslateTransform(-f.Center.X, -f.Center.Y)
-
-			g.DrawRectangle(Pens.HotPink, GetOuterBounds(f))
-			g.FillEllipse(Brushes.PaleGreen, f.Start.X - 3, f.Start.Y - 3, 6, 6)
-			g.DrawLine(Pens.Orange, f.Start, f.End)
 		Next
 	End Sub
 
@@ -122,9 +102,14 @@ Public Class MainForm
 
 		RenderFishes(g)
 
+		Dim x = Math.Min(start.X, ender.X)
+		Dim y = Math.Min(start.Y, ender.Y)
+		Dim w = Math.Max(start.X, ender.X) - x
+		Dim h = Math.Max(start.Y, ender.Y) - y
+
 		If creating Then
 			g.DrawLine(Pens.Red, start, ender)
-			'g.DrawRectangle(Pens.Green, New Fish(start, ender, Val(txtAspect.Text)).Bounding)
+			g.DrawRectangle(Pens.Green, New Rectangle(x, y, w, h))
 		End If
 	End Sub
 
@@ -141,7 +126,12 @@ Public Class MainForm
 		ender = e.Location
 		creating = False
 
-		Dim f = iTransform(New Fish(start, ender, 2 * progAr.Value / progAr.Maximum))
+		Dim x = Math.Min(start.X, ender.X)
+		Dim y = Math.Min(start.Y, ender.Y)
+		Dim w = Math.Max(start.X, ender.X) - x
+		Dim h = Math.Max(start.Y, ender.Y) - y
+
+		Dim f = iTransform(New RectangleF(x, y, w, h))
 		If f.Width < 20 Then
 			Return
 		End If
@@ -157,7 +147,7 @@ Public Class MainForm
 	Private Sub img_MouseClick(sender As Object, e As MouseEventArgs) Handles img.MouseClick
 		If e.Button = MouseButtons.Right Then
 			Dim mp = img.PointToClient(MousePosition)
-			app.RemoveByPoint(iTransform(mp).ToPoint2f())
+			app.RemoveByPoint(New Point(mp.X / aspect, mp.Y / aspect).ToPoint2f())
 		End If
 	End Sub
 
@@ -209,8 +199,6 @@ Public Class MainForm
 			img.Width = img.Image.Width * aspect
 		End If
 		progFid.Value = app.FrameID
-		lblAr.Text = $"Aspect Ratio: {2 * progAr.Value / progAr.Maximum}"
-		lblProg.Text = $"Progress: {progFid.Value}/{progFid.Maximum}"
 		img.Invalidate()
 	End Sub
 
@@ -229,30 +217,14 @@ Public Class MainForm
 		End If
 	End Sub
 
-	Private Sub progAr_MouseMoveOrDown(sender As Object, e As MouseEventArgs) Handles progAr.MouseMove, progAr.MouseDown
-		If e.Button = MouseButtons.Left Then
-			Dim mp = progAr.Control.PointToClient(MousePosition)
-			Dim vl = mp.X * progAr.Maximum / progAr.Width
-			If vl < 0 OrElse vl >= progAr.Maximum Then Return
-			progAr.Value = vl
-		End If
-	End Sub
-
-	Private Function Transform(pt As Point) As Point
-		Return New Point(pt.X * aspect, pt.Y * aspect)
+	Private Function Transform(r As RectangleF) As RectangleF
+		Return New RectangleF(r.X * aspect, r.Y * aspect, r.Width * aspect, r.Height * aspect)
 	End Function
 
-	Private Function iTransform(pt As Point) As Point
-		Return New Point(pt.X / aspect, pt.Y / aspect)
+	Private Function iTransform(r As RectangleF) As RectangleF
+		Return New RectangleF(r.X / aspect, r.Y / aspect, r.Width / aspect, r.Height / aspect)
 	End Function
 
-	Private Function Transform(f As Fish) As Fish
-		Return New Fish(Transform(f.Start), Transform(f.End), f.Aspect)
-	End Function
-
-	Private Function iTransform(f As Fish) As Fish
-		Return New Fish(iTransform(f.Start), iTransform(f.End), f.Aspect)
-	End Function
 
 	Private Sub ToolStripButton2_Click(sender As Object, e As EventArgs) Handles ToolStripButton2.Click
 		app.PreviousFrame()

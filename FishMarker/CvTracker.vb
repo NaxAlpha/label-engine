@@ -3,13 +3,13 @@
 Public Class CvTracker
 
 	'Config
-	Private nPointsToTrack As Integer = 400
+	Private nPointsToTrack As Integer = 100
 
 	Friend olderPoints As New List(Of Point2f)
 	Friend newerPoints As New List(Of Point2f)
 
 	'Fields
-	Private regions As New List(Of Fish)
+	Private regions As New List(Of RectangleF)
 
 	Private oldPoints As Point2f()
 	Private newPoints As Point2f()
@@ -21,7 +21,7 @@ Public Class CvTracker
 		current.CopyTo(Me.current)
 	End Sub
 
-	Public Sub AddRegion(r As Fish)
+	Public Sub AddRegion(r As RectangleF)
 		regions.Add(r)
 	End Sub
 
@@ -29,15 +29,14 @@ Public Class CvTracker
 		regions.Clear()
 	End Sub
 
-	Public Sub RemoveRegion(f As Fish)
+	Public Sub RemoveRegion(f As RectangleF)
 		regions.Remove(f)
 	End Sub
 
-	Private Function GetPoints(f As Fish) As List(Of Point2f)
+	Private Function GetPoints(r As RectangleF) As List(Of Point2f)
 		Dim pts As New List(Of Point2f)
 
 		Dim nPoints1d As Integer = Math.Sqrt(nPointsToTrack)
-		Dim r = f.Bounding
 
 		Dim xstep As Single = (1.0 * r.Width) / nPoints1d
 		Dim xoffset As Single = 0.5 * xstep
@@ -48,11 +47,7 @@ Public Class CvTracker
 			For j As Integer = 0 To nPoints1d - 1
 				Dim xPos As Single = r.X + (xstep * j) + xoffset
 				Dim yPos As Single = r.Y + (ystep * i) + yoffset
-				Dim PosP As New Point2f(xPos, yPos)
-				Dim Pose = PosP.Shift(f.Center.ToPoint2f).Rotate(-f.Angle)
-				If (Pose.X / f.Width) ^ 2 + (Pose.Y / f.Height) ^ 2 < 0.3 Then
-					pts.Add(PosP)
-				End If
+				pts.Add(New Point2f(xPos, yPos))
 			Next
 		Next
 		Return pts
@@ -139,8 +134,7 @@ Public Class CvTracker
 		Next
 	End Sub
 
-	Private Function ComputeNewRect(oldFish As Fish, ByRef disp As Point2f) As Fish
-		Dim old = oldFish.Bounding
+	Private Function ComputeNewRect(old As RectangleF, ByRef disp As Point2f) As RectangleF
 		Dim newCenter As New Point2d(old.X + old.Width / 2.0, old.Y + old.Height / 2.0)
 		Dim n As Integer = oldPoints.Count
 		Dim buf = New Single(Math.Max(n * (n - 1) / 2, 3) - 1) {}
@@ -150,7 +144,7 @@ Public Class CvTracker
 			rNew.Y = old.Y + newPoints(0).Y - oldPoints(0).Y
 			rNew.Width = old.Width
 			rNew.Height = old.Height
-			Return New Fish(rNew.ToRectangle(), oldFish.Angle, oldFish.Aspect)
+			Return rNew.ToRectangle()
 		End If
 
 		For j = 0 To n - 1
@@ -186,7 +180,7 @@ Public Class CvTracker
 		rNew.Height = scale * old.Height
 
 		disp = New Point2f(xshift, yshift)
-		Return New Fish(rNew.ToRectangle(), oldFish.Angle, oldFish.Aspect)
+		Return rNew.ToRectangle()
 	End Function
 
 	Private Function ShiftPoints(pt As List(Of Point2f), del As Point2f) As List(Of Single)
@@ -241,7 +235,7 @@ Public Class CvTracker
 		Next
 	End Sub
 
-	Public Function ListRegions() As IEnumerable(Of Fish)
+	Public Function ListRegions() As IEnumerable(Of RectangleF)
 		Return regions
 	End Function
 
