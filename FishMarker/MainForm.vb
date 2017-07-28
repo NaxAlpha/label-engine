@@ -7,9 +7,13 @@ Public Class MainForm
 
 	Private app As New LabelApp
 
+	Dim delta As Point
 	Dim start As Point
 	Dim ender As Point
 	Dim creating As Boolean
+	Dim dragging As Boolean
+	Dim selected As RectangleF
+
 
 	Dim aspect As Double = 0
 
@@ -107,14 +111,27 @@ Public Class MainForm
 		Dim w = Math.Max(start.X, ender.X) - x
 		Dim h = Math.Max(start.Y, ender.Y) - y
 
-		If creating Then
+		If creating And Not dragging Then
 			g.DrawLine(Pens.Red, start, ender)
 			g.DrawRectangle(Pens.Green, New Rectangle(x, y, w, h))
+		End If
+		If dragging Then
+			g.FillRectangle(New SolidBrush(Color.FromArgb(128, Color.Blue)), selected)
 		End If
 	End Sub
 
 	Private Sub img_MouseDown(sender As Object, e As MouseEventArgs) Handles img.MouseDown
 		If e.Button <> MouseButtons.Left OrElse Not app.IsLoaded Then Return
+		For Each f As RectangleF In app.ListFishes()
+			f = Transform(f)
+			If f.Contains(img.PointToClient(MousePosition)) Then
+				dragging = True
+				selected = f
+				delta = New Point(e.X, e.Y) - New Point(f.X, f.Y)
+				app.RemoveByPoint(New Point(e.X / aspect, e.Y / aspect).ToPoint2f())
+				Exit For
+			End If
+		Next
 		start = e.Location
 		ender = e.Location
 		creating = True
@@ -122,25 +139,31 @@ Public Class MainForm
 
 	Private Sub img_MouseUp(sender As Object, e As MouseEventArgs) Handles img.MouseUp
 		If Not creating OrElse e.Button <> MouseButtons.Left OrElse Not app.IsLoaded Then Return
-
 		ender = e.Location
-		creating = False
+		If Not dragging Then
+			Dim x = Math.Min(start.X, ender.X)
+			Dim y = Math.Min(start.Y, ender.Y)
+			Dim w = Math.Max(start.X, ender.X) - x
+			Dim h = Math.Max(start.Y, ender.Y) - y
 
-		Dim x = Math.Min(start.X, ender.X)
-		Dim y = Math.Min(start.Y, ender.Y)
-		Dim w = Math.Max(start.X, ender.X) - x
-		Dim h = Math.Max(start.Y, ender.Y) - y
-
-		Dim f = iTransform(New RectangleF(x, y, w, h))
-		If f.Width < 20 Then
-			Return
+			Dim f = iTransform(New RectangleF(x, y, w, h))
+			If f.Width < 20 Then
+				Return
+			End If
+			app.AddFish(f)
+		Else
+			app.AddFish(iTransform(selected))
 		End If
-		app.AddFish(f)
+		creating = False
+		dragging = False
 	End Sub
 
 	Private Sub img_MouseMove(sender As Object, e As MouseEventArgs) Handles img.MouseMove
 		If creating Then
 			ender = e.Location
+		End If
+		If dragging Then
+			selected.Location = ender - delta
 		End If
 	End Sub
 
@@ -274,4 +297,7 @@ Public Class MainForm
 		btnUpdate.Enabled = True
 	End Sub
 
+	Private Sub img_Click(sender As Object, e As EventArgs) Handles img.Click
+
+	End Sub
 End Class
