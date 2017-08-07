@@ -99,6 +99,12 @@
   <ItemGroup>
     <Compile Include="APIs.vb" />
     <Compile Include="CvTracker.vb" />
+    <Compile Include="FishControl.Designer.vb">
+      <DependentUpon>FishControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="FishControl.vb">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="LabelApp.vb" />
     <Compile Include="MainForm.vb">
       <SubType>Form</SubType>

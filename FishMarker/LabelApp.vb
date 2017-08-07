@@ -62,15 +62,8 @@ Public Class LabelApp
 
 	Public Sub ReadFrame()
 		If FrameID >= FrameCount Then Return
-		If TrackingEnabled Then TrackingEnabled = True 'Fore Re-enable
 		fishes.Move()
 		capture.Read(frame)
-		If trackerEnabled AndAlso FrameID >= 1 Then
-			fishes.Current.Clear()
-			tracker.Track(frame)
-			Dim regions = tracker.ListRegions()
-			fishes.Current.AddRange(regions.Select(Function(r) BoundPoint(r)))
-		End If
 	End Sub
 
 	Public Sub ReloadVideo()
@@ -89,9 +82,6 @@ Public Class LabelApp
 				capture.Read(frame)
 				fishes.Move()
 			End While
-			If TrackingEnabled Then
-				trackerEnabled = True 'Force Re-Enable
-			End If
 		End If
 	End Sub
 
@@ -128,6 +118,10 @@ Public Class LabelApp
 		Return fishes.Current
 	End Function
 
+	Public Sub ClearFrame()
+		fishes.Current.Clear()
+	End Sub
+
 	Public Sub Save()
 		If Not IsLoaded Then Return
 		fishes.Save(fishFile)
@@ -138,25 +132,17 @@ Public Class LabelApp
 #Region "Tracking Engine"
 
 	Private tracker As New CvTracker
-	Private trackerEnabled As Boolean = False
 
-	Public Property TrackingEnabled As Boolean
-		Get
-			Return trackerEnabled
-		End Get
-		Set(value As Boolean)
-			trackerEnabled = value
-			If trackerEnabled Then
-				tracker.ClearAll()
-				tracker.Init(frame)
-				For Each f In fishes.Current
-					tracker.AddRegion(f)
-				Next
-			Else
-				tracker.ClearAll()
-			End If
-		End Set
-	End Property
+	Public Sub TrackToNextFrame()
+		If FrameID >= FrameCount Then Return
+		tracker.ClearAll()
+		tracker.Init(frame)
+		tracker.AddRegions(fishes.Current)
+		ReadFrame()
+		tracker.Track(frame)
+		fishes.Current.Clear()
+		fishes.Current.AddRange(tracker.ListRegions())
+	End Sub
 
 #End Region
 

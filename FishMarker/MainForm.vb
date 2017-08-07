@@ -11,11 +11,49 @@ Public Class MainForm
 	Dim start As Point
 	Dim ender As Point
 	Dim creating As Boolean
-	Dim dragging As Boolean
-	Dim selected As RectangleF
-
 
 	Dim aspect As Double = 0
+
+	Private Sub ChangeFrame(action As Action)
+		app.ClearFrame()
+		For Each c As FishControl In img.Controls
+			app.AddFish(iTransform(New RectangleF(c.Left, c.Top, c.Width, c.Height)))
+		Next
+		action.Invoke()
+		img.Controls.Clear()
+		For Each fish In app.ListFishes()
+			img.Controls.Add(New FishControl(Transform(fish)))
+		Next
+		Try
+			img.Image = app.CurrentFrame()
+		Catch ex As Exception
+			Throw
+		End Try
+	End Sub
+
+	Private Sub GoToFrame(fid As Integer)
+		ChangeFrame(Sub() app.SkipToFrame(fid))
+	End Sub
+
+	Private Sub NextFrame()
+		ChangeFrame(Sub() app.ReadFrame())
+	End Sub
+
+	Private Sub TrackFrame()
+		ChangeFrame(Sub() app.TrackToNextFrame())
+	End Sub
+
+	Private Sub PreviousFrame()
+		ChangeFrame(Sub() app.PreviousFrame())
+	End Sub
+
+	Private Function Transform(r As RectangleF) As RectangleF
+		Return New RectangleF(r.X * aspect, r.Y * aspect, r.Width * aspect, r.Height * aspect)
+	End Function
+
+	Private Function iTransform(r As RectangleF) As RectangleF
+		Return New RectangleF(r.X / aspect, r.Y / aspect, r.Width / aspect, r.Height / aspect)
+	End Function
 
 	Private Async Function DownloadFile(url As String) As Task(Of String)
 		Dim req As HttpWebRequest = WebRequest.Create(url)
@@ -84,19 +122,6 @@ Public Class MainForm
 		End Try
 	End Sub
 
-	Private Sub RenderFishes(g As Graphics)
-		Dim moused As Boolean = False
-		For Each f In app.ListFishes()
-			f = Transform(f)
-			g.DrawRectangle(Pens.Red, f.ToRectangle())
-
-			If Not moused AndAlso f.Contains(img.PointToClient(MousePosition)) Then
-				g.FillRectangle(New SolidBrush(Color.FromArgb(128, Color.Gold)), f)
-				moused = True
-			End If
-		Next
-	End Sub
-
 	Private Sub img_Paint(sender As Object, e As PaintEventArgs) Handles img.Paint
 		Dim g = e.Graphics
 		g.CompositingQuality = Drawing2D.CompositingQuality.HighQuality
@@ -104,34 +129,19 @@ Public Class MainForm
 		g.PixelOffsetMode = Drawing2D.PixelOffsetMode.HighQuality
 		g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
 
-		RenderFishes(g)
-
 		Dim x = Math.Min(start.X, ender.X)
 		Dim y = Math.Min(start.Y, ender.Y)
 		Dim w = Math.Max(start.X, ender.X) - x
 		Dim h = Math.Max(start.Y, ender.Y) - y
 
-		If creating And Not dragging Then
+		If creating Then
 			g.DrawLine(Pens.Red, start, ender)
 			g.DrawRectangle(Pens.Green, New Rectangle(x, y, w, h))
-		End If
-		If dragging Then
-			g.FillRectangle(New SolidBrush(Color.FromArgb(128, Color.Blue)), selected)
 		End If
 	End Sub
 
 	Private Sub img_MouseDown(sender As Object, e As MouseEventArgs) Handles img.MouseDown
 		If e.Button <> MouseButtons.Left OrElse Not app.IsLoaded Then Return
-		For Each f As RectangleF In app.ListFishes()
-			f = Transform(f)
-			If f.Contains(img.PointToClient(MousePosition)) Then
-				dragging = True
-				selected = f
-				delta = New Point(e.X, e.Y) - New Point(f.X, f.Y)
-				app.RemoveByPoint(New Point(e.X / aspect, e.Y / aspect).ToPoint2f())
-				Exit For
-			End If
-		Next
 		start = e.Location
 		ender = e.Location
 		creating = True
@@ -140,37 +150,22 @@ Public Class MainForm
 	Private Sub img_MouseUp(sender As Object, e As MouseEventArgs) Handles img.MouseUp
 		If Not creating OrElse e.Button <> MouseButtons.Left OrElse Not app.IsLoaded Then Return
 		ender = e.Location
-		If Not dragging Then
-			Dim x = Math.Min(start.X, ender.X)
-			Dim y = Math.Min(start.Y, ender.Y)
-			Dim w = Math.Max(start.X, ender.X) - x
-			Dim h = Math.Max(start.Y, ender.Y) - y
+		Dim x = Math.Min(start.X, ender.X)
+		Dim y = Math.Min(start.Y, ender.Y)
+		Dim w = Math.Max(start.X, ender.X) - x
+		Dim h = Math.Max(start.Y, ender.Y) - y
 
-			Dim f = iTransform(New RectangleF(x, y, w, h))
-			If f.Width < 20 Then
-				Return
-			End If
-			app.AddFish(f)
-		Else
-			app.AddFish(iTransform(selected))
+		Dim f = iTransform(New RectangleF(x, y, w, h))
+		If f.Width < 20 Then
+			Return
 		End If
+		img.Controls.Add(New FishControl(Transform(f)))
 		creating = False
-		dragging = False
 	End Sub
 
 	Private Sub img_MouseMove(sender As Object, e As MouseEventArgs) Handles img.MouseMove
 		If creating Then
 			ender = e.Location
-		End If
-		If dragging Then
-			selected.Location = ender - delta
-		End If
-	End Sub
-
-	Private Sub img_MouseClick(sender As Object, e As MouseEventArgs) Handles img.MouseClick
-		If e.Button = MouseButtons.Right Then
-			Dim mp = img.PointToClient(MousePosition)
-			app.RemoveByPoint(New Point(mp.X / aspect, mp.Y / aspect).ToPoint2f())
 		End If
 	End Sub
 
@@ -182,35 +177,21 @@ Public Class MainForm
 				End If
 				app.LoadVideo(ofd.FileName)
 				progFid.Maximum = app.FrameCount
-				lblProg.Text = $"Progress: {0}/{progFid.Maximum}"
-				app.SkipToFrame(1)
+				GoToFrame(1)
 				img.Image = app.CurrentFrame()
-				app.TrackingEnabled = True
 			End If
 		End Using
 	End Sub
 
 	Private Sub ToolStripButton3_Click(sender As Object, e As EventArgs) Handles ToolStripButton3.Click
 		If Not app.IsLoaded Then Return
-		app.ReadFrame()
 		app.Save()
-		Try
-			img.Image = app.CurrentFrame()
-		Catch ex As Exception
-			img.Image = Nothing
-		End Try
+		NextFrame()
 	End Sub
 
 	Private Sub MainForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 		Text = Text + " " + Application.ProductVersion
 		CheckForUpdate()
-		app.TrackingEnabled = True
-	End Sub
-
-	Private Sub btnTrack_Click(sender As Object, e As EventArgs) Handles btnTrack.Click
-		btnTrack.Checked = Not btnTrack.Checked
-		btnTrack.Text = "Tracking " + If(btnTrack.Checked, "Enabled", "Disabled")
-		app.TrackingEnabled = btnTrack.Checked
 	End Sub
 
 	Private Sub tmr_Tick(sender As Object, e As EventArgs) Handles tmr.Tick
@@ -223,6 +204,10 @@ Public Class MainForm
 		End If
 		progFid.Value = app.FrameID
 		img.Invalidate()
+		For Each c As FishControl In img.Controls
+			c.Invalidate()
+		Next
+		app.Save()
 	End Sub
 
 	Private Sub progFid_MouseMoveOrUp(sender As Object, e As MouseEventArgs) Handles progFid.MouseMove, progFid.MouseUp
@@ -231,31 +216,12 @@ Public Class MainForm
 			Dim vl = mp.X * progFid.Maximum / progFid.Width
 			If vl <= 0 OrElse vl > progFid.Maximum - 2 Then Return
 			progFid.Value = vl
-			app.SkipToFrame(progFid.Value)
-			Try
-				img.Image = app.CurrentFrame()
-			Catch ex As Exception
-				img.Image = Nothing
-			End Try
+			GoToFrame(progFid.Value)
 		End If
 	End Sub
 
-	Private Function Transform(r As RectangleF) As RectangleF
-		Return New RectangleF(r.X * aspect, r.Y * aspect, r.Width * aspect, r.Height * aspect)
-	End Function
-
-	Private Function iTransform(r As RectangleF) As RectangleF
-		Return New RectangleF(r.X / aspect, r.Y / aspect, r.Width / aspect, r.Height / aspect)
-	End Function
-
-
 	Private Sub ToolStripButton2_Click(sender As Object, e As EventArgs) Handles ToolStripButton2.Click
-		app.PreviousFrame()
-		Try
-			img.Image = app.CurrentFrame()
-		Catch ex As Exception
-			img.Image = Nothing
-		End Try
+		PreviousFrame()
 	End Sub
 
 	Private Sub ToolStripButton4_Click(sender As Object, e As EventArgs) Handles ToolStripButton4.Click
@@ -271,7 +237,7 @@ Public Class MainForm
 	End Sub
 
 	Private Sub ToolStripButton5_Click(sender As Object, e As EventArgs) Handles ToolStripButton5.Click
-		app.SkipToFrame(Val(txtFid.Text))
+		GoToFrame(Val(txtFid.Text))
 	End Sub
 
 	Private Async Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
@@ -297,7 +263,8 @@ Public Class MainForm
 		btnUpdate.Enabled = True
 	End Sub
 
-	Private Sub img_Click(sender As Object, e As EventArgs) Handles img.Click
-
+	Private Sub btnTrack_Click(sender As Object, e As EventArgs) Handles btnTrack.Click
+		TrackFrame()
 	End Sub
+
 End Class

@@ -25,6 +25,10 @@ Public Class CvTracker
 		regions.Add(r)
 	End Sub
 
+	Public Sub AddRegions(r As IEnumerable(Of RectangleF))
+		regions.AddRange(r)
+	End Sub
+
 	Public Sub ClearAll()
 		regions.Clear()
 	End Sub
