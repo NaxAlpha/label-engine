@@ -71,7 +71,7 @@ Public Class FishControl
 	Protected Overrides Sub OnPaint(pe As PaintEventArgs)
 		Dim g = pe.Graphics
 		ButtonRenderer.DrawParentBackground(g, New Rectangle(0, 0, Width, Height), Me)
-		g.DrawRectangle(New Pen(Color.Red, 10), New Rectangle(0, 0, Width, Height))
+		g.DrawRectangle(New Pen(Color.Red, 2), New Rectangle(0, 0, Width, Height))
 		MyBase.OnPaint(pe)
 	End Sub
 

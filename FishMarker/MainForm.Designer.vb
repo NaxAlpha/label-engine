@@ -55,7 +55,7 @@ Partial Class MainForm
 		Me.tools.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripButton1, Me.ToolStripSeparator1, Me.ToolStripButton2, Me.ToolStripButton3, Me.btnTrack, Me.ToolStripSeparator2, Me.ToolStripButton4, Me.ToolStripSeparator3, Me.ToolStripLabel1, Me.progFid, Me.txtFid, Me.ToolStripButton5, Me.ToolStripSeparator4, Me.btnUpdate})
 		Me.tools.Location = New System.Drawing.Point(0, 0)
 		Me.tools.Name = "tools"
-		Me.tools.Size = New System.Drawing.Size(1481, 47)
+		Me.tools.Size = New System.Drawing.Size(954, 47)
 		Me.tools.TabIndex = 0
 		'
 		'ToolStripButton1
@@ -171,16 +171,16 @@ Partial Class MainForm
 		Me.mainPanel.Dock = System.Windows.Forms.DockStyle.Fill
 		Me.mainPanel.Location = New System.Drawing.Point(0, 47)
 		Me.mainPanel.Name = "mainPanel"
-		Me.mainPanel.Size = New System.Drawing.Size(1481, 598)
+		Me.mainPanel.Size = New System.Drawing.Size(954, 617)
 		Me.mainPanel.TabIndex = 1
 		'
 		'status
 		'
 		Me.status.ImageScalingSize = New System.Drawing.Size(20, 20)
 		Me.status.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.lblUpdate})
-		Me.status.Location = New System.Drawing.Point(0, 570)
+		Me.status.Location = New System.Drawing.Point(0, 588)
 		Me.status.Name = "status"
-		Me.status.Size = New System.Drawing.Size(1460, 29)
+		Me.status.Size = New System.Drawing.Size(954, 29)
 		Me.status.TabIndex = 3
 		Me.status.Text = "StatusStrip1"
 		'
@@ -207,7 +207,7 @@ Partial Class MainForm
 		'
 		Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
 		Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-		Me.ClientSize = New System.Drawing.Size(1481, 645)
+		Me.ClientSize = New System.Drawing.Size(954, 664)
 		Me.Controls.Add(Me.mainPanel)
 		Me.Controls.Add(Me.tools)
 		Me.Name = "MainForm"

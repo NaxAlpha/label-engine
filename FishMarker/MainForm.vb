@@ -59,7 +59,7 @@ Public Class MainForm
 		Dim req As HttpWebRequest = WebRequest.Create(url)
 		req.Accept = "application/vnd.github.v3+json"
 		req.UserAgent = "Cool"
-		Using res = req.GetResponse(), r = New StreamReader(res.GetResponseStream())
+		Using res = Await req.GetResponseAsync(), r = New StreamReader(res.GetResponseStream())
 			Return Await r.ReadToEndAsync()
 		End Using
 	End Function
@@ -104,10 +104,10 @@ Public Class MainForm
 	End Function
 
 	Private Async Sub CheckForUpdate()
-		Await Task.Delay(1000)
 		Try
 			Dim txt = Await DownloadFile("https://api.github.com/repos/NaxAlpha/label-engine/releases/latest")
-			Dim obj As Newtonsoft.Json.Linq.JObject = Newtonsoft.Json.JsonConvert.DeserializeObject(txt)
+			Dim obj As Newtonsoft.Json.Linq.JObject = Nothing
+			Await Task.Run(Sub() obj = Newtonsoft.Json.JsonConvert.DeserializeObject(txt))
 			Dim tag = obj("tag_name").ToString()
 			Dim newver = Val(tag.Split("."c, "-"c)(2))
 			Dim build = Val(Application.ProductVersion.Split("."c, "-"c)(2))
