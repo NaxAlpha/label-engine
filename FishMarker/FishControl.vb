@@ -77,15 +77,21 @@ Public Class FishControl
 
 	Private Sub FishControl_MouseDown(sender As Object, e As MouseEventArgs) Handles Me.MouseDown
 		If e.Button = MouseButtons.Left Then
+			refresher.Start()
+			Me.BringToFront()
 			ReleaseCapture()
 			SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0)
 		End If
 	End Sub
 
 	Private Sub FishControl_MouseUp(sender As Object, e As MouseEventArgs) Handles Me.MouseUp
+		refresher.Stop()
 		If e.Button = MouseButtons.Right Then
 			Dispose()
 		End If
 	End Sub
 
+	Private Sub refresher_Tick(sender As Object, e As EventArgs) Handles refresher.Tick
+		Me.Invalidate()
+	End Sub
 End Class

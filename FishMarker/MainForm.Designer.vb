@@ -38,9 +38,10 @@ Partial Class MainForm
 		Me.ToolStripButton5 = New System.Windows.Forms.ToolStripButton()
 		Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
 		Me.btnUpdate = New System.Windows.Forms.ToolStripButton()
-		Me.tmr = New System.Windows.Forms.Timer(Me.components)
+		Me.tmr_slow = New System.Windows.Forms.Timer(Me.components)
 		Me.mainPanel = New System.Windows.Forms.Panel()
 		Me.status = New System.Windows.Forms.StatusStrip()
+		Me.lblFishCount = New System.Windows.Forms.ToolStripStatusLabel()
 		Me.lblUpdate = New System.Windows.Forms.ToolStripStatusLabel()
 		Me.img = New System.Windows.Forms.PictureBox()
 		Me.tools.SuspendLayout()
@@ -159,9 +160,10 @@ Partial Class MainForm
 		Me.btnUpdate.Size = New System.Drawing.Size(44, 44)
 		Me.btnUpdate.Text = "Update Now"
 		'
-		'tmr
+		'tmr_slow
 		'
-		Me.tmr.Enabled = True
+		Me.tmr_slow.Enabled = True
+		Me.tmr_slow.Interval = 500
 		'
 		'mainPanel
 		'
@@ -177,12 +179,18 @@ Partial Class MainForm
 		'status
 		'
 		Me.status.ImageScalingSize = New System.Drawing.Size(20, 20)
-		Me.status.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.lblUpdate})
+		Me.status.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.lblFishCount, Me.lblUpdate})
 		Me.status.Location = New System.Drawing.Point(0, 588)
 		Me.status.Name = "status"
 		Me.status.Size = New System.Drawing.Size(954, 29)
 		Me.status.TabIndex = 3
 		Me.status.Text = "StatusStrip1"
+		'
+		'lblFishCount
+		'
+		Me.lblFishCount.Name = "lblFishCount"
+		Me.lblFishCount.Size = New System.Drawing.Size(92, 24)
+		Me.lblFishCount.Text = "Fish Count: 0"
 		'
 		'lblUpdate
 		'
@@ -230,7 +238,7 @@ Partial Class MainForm
 	Friend WithEvents ToolStripButton1 As ToolStripButton
 	Friend WithEvents ToolStripSeparator1 As ToolStripSeparator
 	Friend WithEvents ToolStripButton3 As ToolStripButton
-	Friend WithEvents tmr As Timer
+	Friend WithEvents tmr_slow As Timer
 	Friend WithEvents mainPanel As Panel
 	Friend WithEvents img As PictureBox
 	Friend WithEvents btnTrack As ToolStripButton
@@ -246,4 +254,5 @@ Partial Class MainForm
 	Friend WithEvents ToolStripButton5 As ToolStripButton
 	Friend WithEvents btnUpdate As ToolStripButton
 	Friend WithEvents lblUpdate As ToolStripStatusLabel
+	Friend WithEvents lblFishCount As ToolStripStatusLabel
 End Class

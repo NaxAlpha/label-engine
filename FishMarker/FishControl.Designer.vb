@@ -22,8 +22,21 @@ Partial Class FishControl
 	'Do not modify it using the code editor.
 	<System.Diagnostics.DebuggerStepThrough()> _
 	Private Sub InitializeComponent()
-		components = New System.ComponentModel.Container()
-		'Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+		Me.components = New System.ComponentModel.Container()
+		Me.refresher = New System.Windows.Forms.Timer(Me.components)
+		CType(Me, System.ComponentModel.ISupportInitialize).BeginInit()
+		Me.SuspendLayout()
+		'
+		'refresher
+		'
+		Me.refresher.Interval = 20
+		'
+		'FishControl
+		'
+		CType(Me, System.ComponentModel.ISupportInitialize).EndInit()
+		Me.ResumeLayout(False)
+
 	End Sub
 
+	Friend WithEvents refresher As Timer
 End Class

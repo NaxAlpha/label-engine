@@ -101,6 +101,12 @@ Public Class LabelApp
 
 	Private fishes As New FishCollection
 
+	Public ReadOnly Property CurrentFrameCount As Integer
+		Get
+			Return fishes.Current.Count
+		End Get
+	End Property
+
 	Public Sub AddFish(f As RectangleF)
 		fishes.Current.Add(f)
 	End Sub

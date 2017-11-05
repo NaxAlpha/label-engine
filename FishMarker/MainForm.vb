@@ -125,10 +125,10 @@ Public Class MainForm
 
 	Private Sub img_Paint(sender As Object, e As PaintEventArgs) Handles img.Paint
 		Dim g = e.Graphics
-		g.CompositingQuality = Drawing2D.CompositingQuality.HighQuality
-		g.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBicubic
-		g.PixelOffsetMode = Drawing2D.PixelOffsetMode.HighQuality
-		g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+		'g.CompositingQuality = Drawing2D.CompositingQuality.HighQuality
+		'g.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBicubic
+		'g.PixelOffsetMode = Drawing2D.PixelOffsetMode.HighQuality
+		'g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
 
 		Dim x = Math.Min(start.X, ender.X)
 		Dim y = Math.Min(start.Y, ender.Y)
@@ -146,6 +146,7 @@ Public Class MainForm
 		start = e.Location
 		ender = e.Location
 		creating = True
+		img.Invalidate()
 	End Sub
 
 	Private Sub img_MouseUp(sender As Object, e As MouseEventArgs) Handles img.MouseUp
@@ -155,18 +156,19 @@ Public Class MainForm
 		Dim y = Math.Min(start.Y, ender.Y)
 		Dim w = Math.Max(start.X, ender.X) - x
 		Dim h = Math.Max(start.Y, ender.Y) - y
-
 		Dim f = iTransform(New RectangleF(x, y, w, h))
 		If f.Width < 20 Then
 			Return
 		End If
 		img.Controls.Add(New FishControl(Transform(f)))
 		creating = False
+		img.Invalidate()
 	End Sub
 
 	Private Sub img_MouseMove(sender As Object, e As MouseEventArgs) Handles img.MouseMove
 		If creating Then
 			ender = e.Location
+			img.Invalidate()
 		End If
 	End Sub
 
@@ -195,7 +197,7 @@ Public Class MainForm
 		CheckForUpdate()
 	End Sub
 
-	Private Sub tmr_Tick(sender As Object, e As EventArgs) Handles tmr.Tick
+	Private Sub tmr_slow_Tick(sender As Object, e As EventArgs) Handles tmr_slow.Tick
 		If img.Height <> mainPanel.Height - 25 Then
 			img.Height = mainPanel.Height - 25
 		End If
@@ -204,10 +206,7 @@ Public Class MainForm
 			img.Width = img.Image.Width * aspect
 		End If
 		progFid.Value = app.FrameID
-		img.Invalidate()
-		For Each c As FishControl In img.Controls
-			c.Invalidate()
-		Next
+		lblFishCount.Text = "Fish Count: " + img.Controls.Count.ToString()
 		app.Save()
 	End Sub
 
@@ -226,7 +225,7 @@ Public Class MainForm
 	End Sub
 
 	Private Sub ToolStripButton4_Click(sender As Object, e As EventArgs) Handles ToolStripButton4.Click
-		app.ListFishes().Clear()
+		ChangeFrame(Sub() app.ListFishes().Clear())
 	End Sub
 
 	Private Sub MainForm_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
@@ -238,7 +237,9 @@ Public Class MainForm
 	End Sub
 
 	Private Sub ToolStripButton5_Click(sender As Object, e As EventArgs) Handles ToolStripButton5.Click
-		GoToFrame(Val(txtFid.Text))
+		Dim fid = Val(txtFid.Text)
+		If fid < 1 OrElse fid >= app.FrameCount Then Return
+		GoToFrame(fid)
 	End Sub
 
 	Private Async Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
@@ -268,4 +269,14 @@ Public Class MainForm
 		TrackFrame()
 	End Sub
 
+	Private Sub img_Click(sender As Object, e As EventArgs) Handles img.Click
+
+	End Sub
+
+	Private Sub MainForm_KeyPress(sender As Object, e As KeyPressEventArgs) Handles Me.KeyPress
+		If e.KeyChar = ChrW(Keys.Escape) Then
+			creating = False
+			img.Invalidate()
+		End If
+	End Sub
 End Class
