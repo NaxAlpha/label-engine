@@ -150,6 +150,14 @@ Public Class LabelApp
 		fishes.Current.AddRange(tracker.ListRegions())
 	End Sub
 
+	Public Sub CopyToNextFrame()
+		If FrameID >= FrameCount Then Return
+		Dim current = fishes.Current
+		ReadFrame()
+		fishes.Current.Clear()
+		fishes.Current.AddRange(current)
+	End Sub
+
 #End Region
 
 #Region "IDisposable Support"

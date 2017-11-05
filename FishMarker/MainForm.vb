@@ -279,4 +279,8 @@ Public Class MainForm
 			img.Invalidate()
 		End If
 	End Sub
+
+	Private Sub ToolStripButton6_Click(sender As Object, e As EventArgs) Handles ToolStripButton6.Click
+		ChangeFrame(Sub() app.CopyToNextFrame())
+	End Sub
 End Class
