@@ -20,6 +20,7 @@ Public Class MainForm
 			app.AddFish(iTransform(New RectangleF(c.Left, c.Top, c.Width, c.Height)))
 		Next
 		action.Invoke()
+		txtFid.Text = app.FrameID.ToString()
 		img.Controls.Clear()
 		For Each fish In app.ListFishes()
 			img.Controls.Add(New FishControl(Transform(fish)))
